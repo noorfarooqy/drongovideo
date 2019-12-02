@@ -1,0 +1,13 @@
+.remote-video {
+    background-color: rgb(50, 37, 101);
+    border-radius: 10px;
+    height: 40vh;
+    width: 100%;
+}
+.local-video {
+    background-color: rgb(190, 184, 212);
+    border-radius: 10px;
+    position: relative;
+    top: -40vh;;
+    height: 15vh;
+}
