@@ -10,6 +10,8 @@ window.SyncClient = require('twilio-sync');
 //components
 import localvideo from "../vuecomponents/localvideo.vue"
 import remotevideo from "../vuecomponents/remotevideo.vue"
+// import pdfjs from "../pdfcomponent/pdfjs.vue";
+import canvas from "../canvas/canvas.vue";
 
 // const VideoGrant = AccessToken.VideoGrant;
 var App = new Vue({
@@ -68,7 +70,7 @@ var App = new Vue({
         eventData(data)
         {
             console.log('data ',data);
-            this.StartConnection(data.token, 'noor_room');
+            // this.StartConnection(data.token, 'noor_room');
             // this.SyncClient = new SyncClient(data.token, { logLevel: 'debug' });
             // this.SyncClient.document('MyDocument')
             // .then(document => {
@@ -154,5 +156,5 @@ var App = new Vue({
         }
 
     },
-    components: {localvideo, remotevideo}
+    components: {localvideo, remotevideo, customCanvas:canvas}
 })

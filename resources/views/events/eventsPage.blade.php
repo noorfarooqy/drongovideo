@@ -18,7 +18,7 @@
                         <div class="card-header">
                             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                                 <a class="navbar-brand" href="#">
-                                    <img src="/images/logo-main.png" class="d-inline-block align-top" alt=""
+                                    <img src="http://ybedu.localhost/static/images/nlogo.png" class="d-inline-block align-top" alt=""
                                         style="height: 5vh;">
                                 </a>
                                 <button class="navbar-toggler" type="button" data-toggle="collapse"
@@ -55,10 +55,11 @@
                             </nav>
                         </div>
 
-                        <div class="card-body" style="min-height:50px" :style="setBackgroundColor()">
+                        <div class="card-body" style="min-height:50px">
                             <span id="colorPickerContainer"></span>
                             <div class="file_container">
-
+                                {{-- <pdfjs></pdfjs> --}}
+                                <custom-canvas  :style="setBackgroundColor()"></custom-canvas>
                             </div>
                         </div>
                     </div>
@@ -120,8 +121,10 @@
 </body>
 {{-- <script src="/js/cloudinary/widgets_all.js" type="text/javascript"></script> --}}
 
+<script src="/fabric/fabric.js"></script>
 <script src="/js/mainvue.js"></script>
 <script src="/js/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
+
 
 </html>

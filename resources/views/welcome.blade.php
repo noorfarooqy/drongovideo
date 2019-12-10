@@ -33,7 +33,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-12">
                     <nav class="navbar navbar-expand-lg navbar-light">
-                        <a class="navbar-brand" href="/"> <img src="http://ybedu.localhost/static/images/nlogo.png"
+                        <a class="navbar-brand" href="/"> <img src="https://www.100chinajobs.com/static/images/nlogo.png"
                             style="height: 40px;" alt="logo"> </a>
                         <button class="navbar-toggler" type="button" data-toggle="collapse"
                             data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -86,7 +86,7 @@
             <div class="row justify-content-between">
                 <div class="col-sm-6 col-md-6 col-xl-3">
                     <div class="single-footer-widget footer_1">
-                        <a href="index.html"> <img src="http://ybedu.localhost/static/images/nlogo.png" alt=""> </a>
+                        <a href="index.html"> <img src="https://www.100chinajobs.com/static/images/nlogo.png" alt=""> </a>
                         <p>But when shot real her. Chamber her one visite removal six
                             sending himself boys scot exquisite existend an </p>
                         <p>But when shot real her hamber her </p>
