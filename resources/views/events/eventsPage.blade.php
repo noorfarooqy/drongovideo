@@ -18,7 +18,7 @@
                         <div class="card-header">
                             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                                 <a class="navbar-brand" href="#">
-                                    <img src="http://ybedu.localhost/static/images/nlogo.png" class="d-inline-block align-top" alt=""
+                                    <img src="https://drongovideo.local/images/nlogo.png" class="d-inline-block align-top" alt=""
                                         style="height: 5vh;">
                                 </a>
                                 <button class="navbar-toggler" type="button" data-toggle="collapse"

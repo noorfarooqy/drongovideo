@@ -11,7 +11,7 @@ window.SyncClient = require('twilio-sync');
 import localvideo from "../vuecomponents/localvideo.vue"
 import remotevideo from "../vuecomponents/remotevideo.vue"
 // import pdfjs from "../pdfcomponent/pdfjs.vue";
-import canvas from "../canvas/canvas.vue";
+import konvacanvas from "../canvas/konvacanvas.vue";
 
 // const VideoGrant = AccessToken.VideoGrant;
 var App = new Vue({
@@ -156,5 +156,5 @@ var App = new Vue({
         }
 
     },
-    components: {localvideo, remotevideo, customCanvas:canvas}
+    components: {localvideo, remotevideo, customCanvas:konvacanvas}
 })

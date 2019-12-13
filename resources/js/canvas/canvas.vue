@@ -43,7 +43,7 @@
                             </a>
                         </li>
                         <li class="nav-item active">
-                            <a class="nav-link" href="#" @click="DrawRectangle">
+                            <a class="nav-link" href="#" @click.prevent="DrawRectangle">
                                 <img src="/editor_icons/ratio.svg" alt="Rectangle" title="Ractangle" height="30px"
                                 style="border:thin solid gray; padding:3px" />
                             </a>
@@ -71,7 +71,11 @@
             </nav>
         </div>
         <div class="card-body"  ref="cardHW">
-            <canvas id="maincanvas" ref="canvas" style="padding-right:1.25rem"> </canvas>
+            <div class="ui-block" ref="BlockRef">
+                <div class="row">
+                <canvas id="maincanvas" ref="canvas" class="col-md-12 col-lg-12" height="500" style="border:thin solid green" > </canvas>
+            </div>
+            </div>
         </div>
     </div>    
 </template>
@@ -81,7 +85,7 @@ export default {
         return {
             name: 'canvas',
             canvas: null,
-            Draw:  {
+            Draw: {
                 status: false,
                 pen: {
                     type: null,
@@ -98,9 +102,9 @@ export default {
         // var ctx = canvas.getContext('2d');
         // console.log('ctx ',ctx);
         this.canvas = new fabric.Canvas(canvas);
-        var cardHW = this.$refs.cardHW;
+        var cardHW = this.$refs.BlockRef;
         var width  = cardHW.clientWidth;
-        var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        var height = cardHW.clientHeight;
         this.canvas.setHeight(height);
         this.canvas.setWidth(width);
         // this.canvas.renderAll();
@@ -108,6 +112,7 @@ export default {
         this.canvas.on('mouse:down',this.mouseDownCallback);
         this.canvas.on('mouse:up',this.mouseUpCallback);
         this.canvas.on('mouse:over',this.mouseOverCallback);
+        this.canvas.on('mouse:move',this.mouseMoveCallback);
     },
     methods : {
         getCanvas()
@@ -117,26 +122,20 @@ export default {
         makeRectangle(x=100,y=100, w=20, h=20)
         {
             console.log('making rectangle x ',x, ' y ',y, ' w ',w, ' h ',h)
-            var rect = new fabric.Rect({
-            left: x,
-            top: y,
-            fill: 'red',
+            this.Draw.pen.object = new fabric.Rect({
+            left: y,
+            top: x,
+            fill: '',
             width: w,
-            height: h
+            height: h,
+            strokeWidth:3,
+            stroke: 'red'   
             });
 
             // "add" rectangle onto canvas
-            console.log('rac ',rect)
-            this.canvas.add(rect);
-            this.Draw =  {
-                status: false,
-                pen: {
-                    type: null,
-                    size: null,
-                    position_x:null,
-                    position_y:null,
-                }
-            }
+            console.log('rac ',this.Draw.pen.object)
+            // this.canvas.add(this.Draw.pen.object);
+            
             // return rect;
         },
         DrawRectangle()
@@ -144,43 +143,74 @@ export default {
             this.Draw.status = true;
             this.Draw.pen.type = 0;//rectangle
         },
-        
+        resetPen()
+        {
+            this.Draw.pen = {
+
+                type: null,
+                size: null,
+                position_x:null,
+                position_y:null,
+                object:null,
+            }
+        },
 
         //events
+        // mouseMoveCallback(option)
+        // {
+        //     // if(this.Draw.status && this.Draw.mouse_position === 1)
+        //     // {
+        //     //     var endxy = this.canvas.getPointer(option.e);
+        //     //     this.Draw.pen.object.width = Math.abs(endxy.x - this.Draw.pen.position_x);
+        //     //     this.Draw.pen.object.height = Math.abs(endxy.y - this.Draw.pen.position_y)
+        //     //     this.canvas.renderAll();
+        //     // }
+        // },
         mouseOverCallback(option)
         {
-            var x =option.e.clientX;
-            var y = option.e.clientY;
-            console.log('x ',x, ' Y ', y);
-            // this.makeRectangle(x,y)
-            // this.DrawRectangle
-            // this.Draw.position_x = x;
-            // this.Draw.position_y = y;
+            // this.Draw.object = this.makeRectangle(x, y, 0, 0);
+            // this.canvas.add(this.Draw.object);
         },
         mouseDownCallback(option)
         {
-            var x =option.e.clientX;
-            var y = option.e.clientY;
+            if(this.Draw.status)
+            {
+                this.Draw.mouse_position = 1;
+                var start = this.canvas.getPointer(option.e)
+                var x =start.x;
+                var y = start.y;
+                console.log('Mousse down ::  x ',x, ' Y ', y);
+                // this.makeRectangle(x,y)
+                // this.DrawRectangle
+                this.Draw.pen.position_x = x;
+                this.Draw.pen.position_y = y;
+                this.makeRectangle(x, y, 0,0);
+            }
+            
+            console.log('pointer is down at ',this.canvas.getPointer(option.e));
+            var x =this.canvas.getPointer(option.e).x;
+            var y = this.canvas.getPointer(option.e).y;
             console.log('x ',x, ' Y ', y);
-            // this.makeRectangle(x,y)
-            // this.DrawRectangle
-            this.Draw.position_x = x;
-            this.Draw.position_y = y;
         },
         mouseUpCallback(option)
         {
-            var x =option.e.clientX;
-            var y = option.e.clientY;
-            console.log('x ',x, ' Y ', y);
-            var w = x - this.Draw.position_x;
-            var h = y - this.Draw.position_y;
-            if(this.Draw.status )
+            console.log('mouse up ', this.Draw.pen.object);
+            if(this.Draw.status && this.Draw.mouse_position === 1)
             {
-                if(this.Draw.pen.type === 0)
-                {
-                    this.makeRectangle(this.Draw.position_x,this.Draw.position_y, w, h)
-                }
+                var endxy = this.canvas.getPointer(option.e);
+                this.Draw.pen.object.width = endxy.x - this.Draw.pen.position_x;
+                this.Draw.pen.object.height = endxy.y - this.Draw.pen.position_y;
+                
+                this.Draw.mouse_position = 2;
+                this.Draw.status = false;
+                this.canvas.add(this.Draw.pen.object);
+                this.resetPen();
             }
+            
+            console.log('pointer is up at ',this.canvas.getPointer(option.e));
+            var x =this.canvas.getPointer(option.e).x;
+            var y = this.canvas.getPointer(option.e).y;
+            console.log('x ',x, ' Y ', y);
             
         }
     },
@@ -188,3 +218,9 @@ export default {
     
 }
 </script>
+<style scoped>
+.canvas-container {
+    height: 100%;
+    width: 100%;
+}
+</style>
