@@ -10,6 +10,7 @@ window.SyncClient = require('twilio-sync');
 //components
 import localvideo from "../vuecomponents/localvideo.vue"
 import remotevideo from "../vuecomponents/remotevideo.vue"
+import errormodal from "../vuecomponents/errormodal.vue"
 // import pdfjs from "../pdfcomponent/pdfjs.vue";
 import konvacanvas from "../canvas/konvacanvas.vue";
 
@@ -47,6 +48,20 @@ var App = new Vue({
             employee: false,
             chat:false,
             current:0,
+        },
+        file_info: {
+            src:null,
+            type:null,
+            size: null,
+            isLoading : false,
+        },
+        file_sharing: {
+            visible: false,
+            current_page_src: null,
+            current_page_num:0,
+            total_pages : 0,
+            all_pages:[],
+
         }
 
 
@@ -54,10 +69,23 @@ var App = new Vue({
     mounted() {
         // alert('ready');
         this.getAccesstoken();
-        this.Cloudinary.launchUploadWidget()
+        this.Cloudinary.launchUploadWidget();
+        
 
     },
     methods: {
+        triggerFileSharing()
+        {
+            this.file_sharing = {
+                visible: true,
+                current_page_src: 'somedefault',
+                current_page_num:0,
+                total_pages : 10,
+                all_pages:['one', 'two'],
+    
+            }
+
+        },
         getAccesstoken()
         {
             this.Server.setRequest({
@@ -100,12 +128,81 @@ var App = new Vue({
             this.default_video.visible = false;
             this.local_video.visible = true;
         },
+
+        uploadMainfiles(event,isPDF)
+        {
+            console.log('loading file');
+            if(this.file_info.isLoading )
+                return;
+            this.file_info.isLoading = true;
+            console.log('event ',event.target.files[0].type)
+            console.log('isPdf ',isPDF)
+            var type =event.target.files[0].type;
+            var is_valid = isPDF === true ? this.isAllowedPDF(type) : this.isAllowPPT(type);
+            if(!is_valid)
+            {
+                this.Error.error_text = 'The file type you have selected is not supported';
+                this.Error.visible = true;
+                this.file_info.isLoading = false;
+                return;
+            }
+            this.file_info.type = isPDF === true ? 0 : 1;
+            // this.Server.previewFile(event.target, this.fileLoaded, this.showErrorModal);
+            var formdata = new FormData();
+            formdata.append('file_src',event.target.files[0]);
+            formdata.append('file_type', this.file_info.type);
+            // this.fileLoaded(formdata);
+            this.Server.setRequest(formdata);
+            this.Server.serverRequest('/api/event/upload/file',this.fileLoaded, this.showErrorModal);
+            
+        },
+        fileLoaded(data)
+        {
+            var pages = data.files;
+            pages.forEach(page => {
+                console.log('page is ',page)
+            })
+            this.file_info ={
+                src:null,
+                type:null,
+                size: null,
+                isLoading : false,
+            }
+            console.log('completed ',data);
+            
+        },
+        isAllowedPDF(type)
+        {
+            console.log('checking pdf ');
+            switch(type)
+            {
+                case 'application/pdf':
+                    return true;
+                default:
+                    return false;
+            }
+        },
+        isAllowPPT(type)
+        {
+            console.log('checking ppt ');
+            switch(type)
+            {
+                case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+                    return true;
+                case 'application/vnd.ms-powerpoint':
+                    return true;
+                default:
+                    return false;
+            }
+        },
+        
+
+        //style and script functions
         showErrorModal(error)
         {
             this.Error.showErrorModal(error);
+            this.file_info.isLoading = false;
         },
-
-        //style and script functions
         getActiveTab(index){
             if(index === this.info_tabs.current)
                 return;
@@ -156,5 +253,5 @@ var App = new Vue({
         }
 
     },
-    components: {localvideo, remotevideo, customCanvas:konvacanvas}
+    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal}
 })

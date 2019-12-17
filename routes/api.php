@@ -18,3 +18,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/event/gettoken', 'events\eventController@generateAccessToken');
+
+Route::post('/event/upload/file', 'filemanager\mainFileManager@uploadFile');

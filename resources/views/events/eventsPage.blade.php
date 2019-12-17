@@ -11,6 +11,8 @@
 
 <body>
     <div class="container-fluid" id="App">
+        <errormodal v-if="Error.visible" v-bind="Error"
+        v-on:close-error-modal="Error.resetErrorModal()"></errormodal>
         <div class="row">
             <div class="col-md-9 col-lg-9">
                 <div class="row">
@@ -32,12 +34,21 @@
                                             <a class="nav-link" href="#">
                                             </a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#">
-                                                <img src="/images/upload_icon.png" alt="" style="height:15px"> Upload
-                                                file
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <img src="/images/upload_icon.png" alt="" style="height:15px">  Upload file
                                             </a>
-                                        </li>
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                              <a class="dropdown-item" href="#" @click.prevent="$refs.pdfUploader.click()">
+                                                  Pdf file
+
+                                              </a>
+                                              <a class="dropdown-item" href="#" @click.prevent="$refs.pptUploader.click()">
+                                                  Powerpoint
+                                                </a>
+                                              <div class="dropdown-divider"></div>
+                                            </div>
+                                          </li>
                                         <li class="nav-item">
                                             <a class="nav-link" href="#" @click.prevent="getBackgroundColor()">
                                                 <img src="/images/color_icon.png" alt="" style="height:25px"> Background
@@ -45,7 +56,7 @@
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">
+                                            <a class="nav-link" href="#" @click.prevent="triggerFileSharing()">
                                                 <img src="/images/troubleshoot_icon.jpg" alt="" style="height:25px">
                                                 Troubleshoot
                                             </a>
@@ -59,8 +70,12 @@
                             <span id="colorPickerContainer"></span>
                             <div class="file_container">
                                 {{-- <pdfjs></pdfjs> --}}
-                                <custom-canvas  :style="setBackgroundColor()"></custom-canvas>
+                                <custom-canvas  :style="setBackgroundColor()" v-bind="{file_sharing: file_sharing}"></custom-canvas>
                             </div>
+                        </div>
+                        <div style="display:none">
+                            <input type="file" @change.prevent="uploadMainfiles($event, true)" ref="pdfUploader"/>
+                            <input type="file" @change.prevent="uploadMainfiles($event, false)" ref="pptUploader"/>
                         </div>
                     </div>
                 </div>

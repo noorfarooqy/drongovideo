@@ -12,25 +12,21 @@ class FileUploader
     protected $filename;
     protected $allowed_file_types;
     protected $file_extension;
-    protected $uploaded_extension;
+    protected $given_extension;
     public function __construct()
     {
         $this->Error = new Error();
         $this->directory = 'uploads/file_uploader/';
         $this->publicpath = public_path($this->directory);
-
         $this->filename = "chunk_" . time() . "_.";
         $this->allowed_file_types = ["image/jpeg", "image/png", "image/jpg"];
         $this->file_extension = ["jpeg", "png", "jpg"];
+
     }
     public function uplaodJsonFile($filedata)
     {
-        // return $this->publicpath;
-        if (!is_dir($this->publicpath)) {
-            if (!mkdir($this->publicpath, 0765, true)) {
-                $this->Error->setError(["Failed to create upload directory. Please contact support"]);
-                return false;
-            }
+        if (!$this->validDirectory) {
+            return false;
         }
 
         $file_type = substr($filedata, (strpos($filedata, "data:") + 5),
@@ -47,8 +43,7 @@ class FileUploader
         try
         {
             File::put($logo_url, $filedata);
-            $this->uploaded_extension = $extenstion;
-            return env('APP_URL') . "/" . $this->directory . $this->filename . $extenstion;
+            return env('APP_URL') . $this->directory . $this->filename . $extenstion;
         } catch (Exception $exception) {
             $this->Error->setError(["Failed to upload the file ", $exception]);
             return false;
@@ -96,12 +91,50 @@ class FileUploader
         }
         $this->file_extension = $extension;
     }
-    public function getUploadedExtension()
-    {
-        return $this->uploaded_extension;
-    }
     public function getError()
     {
         return $this->Error->getError();
+    }
+    protected function validDirectory()
+    {
+        if (!is_dir($this->publicpath)) {
+            if (!mkdir($this->publicpath, 0765, true)) {
+                $this->Error->setError(["Failed to create upload directory. Please contact support"]);
+                return false;
+            }
+        }
+        return true;
+    }
+    public function uploadFileDirect($request)
+    {
+        if (!$this->validDirectory()) {
+            return false;
+        }
+
+        $this->setFileExtension([
+            "pdf", "ppt", "pptx",
+        ]);
+        $fextension = $request->file('file_src')->getClientOriginalExtension();
+        if (($type_key = array_search($fextension, $this->file_extension)) === false) {
+            $this->Error->setError(["The file extension is not valid " . $type_key]);
+            return false;
+        }
+        $filename = $this->filename .'.'. $fextension;
+        if (!$request->file('file_src')->move($this->publicpath . '/', $filename)) {
+            $this->Error->setError(["Failed to to upload the fail into the server"]);
+            return false;
+        } else {
+            if ($fextension === ".mp4" || $fextension === "mp4") {
+                $type = "videoFile";
+            } else {
+                $type = "newDoc";
+            }
+
+            $this->Error->setSuccess([
+                "file_src" =>  $filename,
+                "file_type" => $type,
+            ]);
+            return $this->Error->getSuccess();
+        }
     }
 }
