@@ -66,33 +66,54 @@
                                 </a>
                             </li>
                             <li class="nav-item active">
-                                <a class="nav-link" href="#" >
+                                <a class="nav-link" href="#">
                                     <img src="/editor_icons/eraser.svg" alt="Erasor" height="30px"
                                         style="border:thin solid gray; padding:3px" title="Eraser" />
                                 </a>
                             </li>
                         </ul>
+                        <ul class="nav navbar-nav navbar-right" v-if="this.shared_file">
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-end">
+                                    <li class="page-item " :class="{'disabled':this.shared_file.current_page <= 0 || isLoading}">
+                                        <a class="page-link" href="#" tabindex="-1" @click.prevent="previousFilePage()"
+                                            :disabled="this.shared_file.current_page <= 0 || isLoading">
+                                            Previous
+                                        </a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link" href="#">
+                                        {{this.shared_file.current_page+1}} / {{this.shared_file.num_pages}}
+                                    </a></li>
+                                    <li class="page-item" 
+                                    :class="{'disabled':this.shared_file.current_page+1 === this.shared_file.num_pages || isLoading}">
+                                        <a class="page-link" href="#" @click.prevent="nextFilePage()"
+                                            :disabled="this.shared_file.current_page+1 === this.shared_file.num_pages || isLoading">
+                                            Next
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </ul>
                     </div>
                 </nav>
+
             </div>
             <div class="card-body" ref="cardHW" style="height:100%; width:100%">
-                <div style="height: inherit;width: inherit;"  v-if="videoSharing.visible" >
-                    <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;" 
-                    controls></video>
-                    <button class="btn btn-danger" @click.prevent="closeVideoSharing" 
-                    style="position: absolute;font-size: 16px;top: 100px;right: 25px;cursor: pointer;">Close video</button>
+                <div style="height: inherit;width: inherit;" v-if="videoSharing.visible">
+                    <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;"
+                        controls></video>
+                    <button class="btn btn-danger" @click.prevent="closeVideoSharing"
+                        style="position: absolute;font-size: 16px;top: 100px;right: 25px;cursor: pointer;">Close
+                        video</button>
                 </div>
-                <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px" ref="stage"
-                    @mousedown="listenForAfterMouseDownEvent" @mousemove="listenForAfterMouseMoveEvent"
+                <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px"
+                    ref="stage" @mousedown="listenForAfterMouseDownEvent" @mousemove="listenForAfterMouseMoveEvent"
                     @mouseup="listenForAfterMouseUpEvent">
                     <v-layer style="border:thin solid red; margin:10px" ref="mainLayer">
 
-                        <v-shapes v-bind="all"
-                        v-on:image-transformer="doImageTranformer"></v-shapes>
+                        <v-shapes v-bind="all" v-on:image-transformer="doImageTranformer"></v-shapes>
 
-                        
-
-                        <v-transformer ref="vtransfomer"/>
+                        <v-transformer ref="vtransfomer" />
 
 
                     </v-layer>
@@ -125,23 +146,25 @@
                 },
                 all: {
                     imageConfig: null,
-                    transformerStatus:false,
+                    transformerStatus: false,
                     file_sharing: null,
                 },
+                shared_file:null,//local file sharing copy for paginations purpose
                 uploader: {
                     src: null,
                     focus: false,
                 },
                 videoSharing: {
                     src: null,
-                    visible:null,
+                    visible: null,
                     current_time: null,
-                    playing:false,
+                    playing: false,
                 },
                 transformerStatus: false,
-                selectedImageName:'',
-                
-                
+                selectedImageName: '',
+                isLoading: false,
+
+
             };
         },
         created() {
@@ -169,7 +192,7 @@
                     tf.getLayer().batchDraw();
                     return;
                 }
-                const clickedOnTransformer =e.target.getParent().className === 'Transformer';
+                const clickedOnTransformer = e.target.getParent().className === 'Transformer';
                 if (clickedOnTransformer) {
                     return;
                 }
@@ -179,8 +202,8 @@
                 // } else {
                 //     this.selectedShapeName = '';
                 // }
-                
-                
+
+
             },
             listenForAfterMouseMoveEvent(e) {
                 var pos = this.$refs.stage.getStage().getPointerPosition();
@@ -194,7 +217,7 @@
 
             //menu triggers
 
-            openImageUploader(image=true) {
+            openImageUploader(image = true) {
                 var uploader = document.createElement('input');
                 uploader.setAttribute('type', 'file');
                 var self = this;
@@ -203,25 +226,21 @@
                     var input = file.target;
                     var type = input.files[0].type;
                     if (image) {
-                        if(!self.isImage(type))
-                        {
+                        if (!self.isImage(type)) {
                             self.Error.error_text =
-                            "The file you uploaded is not an image. Please ensure its an image",
-                            self.Error.visible = true;
-                             return;
-                        }
-                    }
-                    else 
-                    {
-                        if(!self.isVideo(type))
-                        {
-                            self.Error.error_text =
-                            "The file you uploaded is not a video. Please ensure its a video",
-                            self.Error.visible = true;
+                                "The file you uploaded is not an image. Please ensure its an image",
+                                self.Error.visible = true;
                             return;
                         }
-                        
-                    
+                    } else {
+                        if (!self.isVideo(type)) {
+                            self.Error.error_text =
+                                "The file you uploaded is not a video. Please ensure its a video",
+                                self.Error.visible = true;
+                            return;
+                        }
+
+
                     }
                     self.uploader.focus = true;
 
@@ -249,34 +268,29 @@
                     src: null
                 }
             },
-            setVideoUploaded()
-            {
-                
+            setVideoUploaded() {
+
                 this.videoSharing.src = this.uploader.src;
                 this.videoSharing.visible = true;
-                this.videoSharing.current_time =0;
+                this.videoSharing.current_time = 0;
                 this.uploader = {
                     focus: false,
                     src: null
                 }
                 this.Draw.visible = false;
             },
-            renderFile(input, type)
-            {
+            renderFile(input, type) {
                 var reader = new FileReader();
-                var self =this;
+                var self = this;
                 reader.onload = function (e) {
                     console.log('reader ready ', e)
                     self.uploader.src = e.target.result;
-                    if(self.isVideo(type)){
+                    if (self.isVideo(type)) {
                         self.setVideoUploaded();
-                    }
-                        
-                    else
-                    {
+                    } else {
                         self.setImageUploaded();
                     }
-``                          
+                    ``
                 }
                 reader.onerror = function (error) {
                     self.Error.error_text = error;
@@ -284,32 +298,91 @@
                 }
                 reader.readAsDataURL(input.files[0]);
             },
-            updateTransformer(e){
+            updateTransformer(e) {
                 const transformerNode = this.$refs.vtransfomer.getStage();
                 const stage = transformerNode.getStage();
 
-                const {selectedImageName} = this;
-                console.log('selected iamge name ',selectedImageName);
+                const {
+                    selectedImageName
+                } = this;
+                console.log('selected iamge name ', selectedImageName);
                 const selectedNode = stage.findOne('.' + selectedImageName);
-                console.log('selected node ',selectedNode);
-                if(selectedNode === transformerNode)
+                console.log('selected node ', selectedNode);
+                if (selectedNode === transformerNode)
                     return; //don't do anything
-                if(selectedNode )
-                {
+                if (selectedNode) {
                     transformerNode.attachTo(selectedNode);
-                }
-                else
-                    transformerNode.detach();//detach thenode 
+                } else
+                    transformerNode.detach(); //detach thenode 
                 transformerNode.getLayer().batchDraw();
             },
-            doImageTranformer(e)
-            {
+            doImageTranformer(e) {
                 this.selectedImageName = e.target.name();
                 this.updateTransformer(e);
             },
 
 
+            //file functions
+            previousFilePage()
+            {
 
+                this.isLoading = true;
+                if(this.shared_file === null)
+                {
+                    console.log(' file sharing is not set');
+                    this.isLoading = false;  
+                    return;
+                }
+                else if(this.shared_file.current_page <= 0)
+                {
+                    console.log('reached first page ');
+                    this.isLoading = false;  
+                    return;
+                }
+                this.shared_file.current_page -=1;
+                var image = new window.Image();
+                image.src = this.file_sharing.pages[this.shared_file.current_page];
+                var self =this;
+                image.onload = () => {
+
+                    this.all.file_sharing = {};
+                    this.all.file_sharing.width = this.getClientWidth();
+                    this.all.file_sharing.height = this.getClientHeight();
+                    this.all.file_sharing.src = image,
+                    this.all.file_sharing.url = image.src,
+                    self.isLoading = false;  
+                }
+                
+            },
+            nextFilePage()
+            {
+                this.isLoading = true;
+                if(this.shared_file === null)
+                {
+                    console.log(' file sharing is not set');
+                    this.isLoading = false;  
+                    return;
+                }
+                else if(this.shared_file.current_page+1 >= this.shared_file.num_pages)
+                {
+                    console.log('reached final page ');
+                    this.isLoading = false;  
+                    return;
+                }
+                this.shared_file.current_page +=1;
+                var image = new window.Image();
+                image.src = this.file_sharing.pages[this.shared_file.current_page];
+                var self =this;
+                image.onload = () => {
+
+                    this.all.file_sharing = {};
+                    this.all.file_sharing.width = this.getClientWidth();
+                    this.all.file_sharing.height = this.getClientHeight();
+                    this.all.file_sharing.src = image;
+                    this.all.file_sharing.url = image.src,
+                    self.isLoading = false;  
+                }
+            },
 
             //modals
             disMissErrorModal() {
@@ -339,23 +412,20 @@
                         return false;
                 }
             },
-            closeVideoSharing()
-            {
+            closeVideoSharing() {
                 this.resetVideoSharing();
                 this.Draw.visible = true;
             },
-            trunsFormer(status)
-            {
+            trunsFormer(status) {
                 this.transformerStatus = status;
                 this.all.transformerStatus = status;
             },
-            resetVideoSharing()
-            {
+            resetVideoSharing() {
                 this.videoSharing = {
                     src: null,
-                    visible:null,
+                    visible: null,
                     current_time: null,
-                    playing:false,
+                    playing: false,
                 }
             }
 
@@ -368,15 +438,17 @@
         },
         props: ["file_sharing"],
         watch: {
-            file_sharing: function(){
+            file_sharing: function () {
                 console.log('its somewhere after me');
-                this.all.file_sharing = this.file_sharing;
+                this.shared_file =this.file_sharing;
+                this.all.file_sharing = {};
                 this.all.file_sharing.width = this.getClientWidth();
                 this.all.file_sharing.height = this.getClientHeight();
-                if(this.file_sharing.visible)
-                {
+                this.all.file_sharing.src = this.file_sharing.image;
+                this.all.file_sharing.url = this.file_sharing.image.src;
+                if (this.all.file_sharing.visible) {
                     this.resetVideoSharing();
-                    
+
                 }
             }
         }

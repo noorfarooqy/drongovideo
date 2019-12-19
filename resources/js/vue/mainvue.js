@@ -11,6 +11,7 @@ window.SyncClient = require('twilio-sync');
 import localvideo from "../vuecomponents/localvideo.vue"
 import remotevideo from "../vuecomponents/remotevideo.vue"
 import errormodal from "../vuecomponents/errormodal.vue"
+import loader from "../vuecomponents/loader.vue"
 // import pdfjs from "../pdfcomponent/pdfjs.vue";
 import konvacanvas from "../canvas/konvacanvas.vue";
 
@@ -61,7 +62,12 @@ var App = new Vue({
             current_page_num:0,
             total_pages : 0,
             all_pages:[],
+            image: null,
 
+        },
+        loading: {
+            visible:false,
+            loading_text: null,
         }
 
 
@@ -131,9 +137,12 @@ var App = new Vue({
 
         uploadMainfiles(event,isPDF)
         {
+            
             console.log('loading file');
             if(this.file_info.isLoading )
                 return;
+            this.loading.loading_text = "Uploading file to the server";
+            this.loading.visible = true;
             this.file_info.isLoading = true;
             console.log('event ',event.target.files[0].type)
             console.log('isPdf ',isPDF)
@@ -144,6 +153,7 @@ var App = new Vue({
                 this.Error.error_text = 'The file type you have selected is not supported';
                 this.Error.visible = true;
                 this.file_info.isLoading = false;
+                this.closeLoader();
                 return;
             }
             this.file_info.type = isPDF === true ? 0 : 1;
@@ -161,14 +171,31 @@ var App = new Vue({
             var pages = data.files;
             pages.forEach(page => {
                 console.log('page is ',page)
+                this.file_sharing.all_pages = pages;
+                this.file_sharing.visible = true;
+                this.file_sharing.current_page_src = pages[0];
             })
-            this.file_info ={
-                src:null,
-                type:null,
-                size: null,
-                isLoading : false,
+            var image = new window.Image();
+            image.src = pages[0];
+            image.onload =() => {
+                this.file_sharing.image = {
+                    image: image,
+                    width: 500,
+                    height: 700,
+                    pages: pages,
+                    current_page: 0,
+                    num_pages: pages.length
+                }
+                this.file_info ={
+                    src:null,
+                    type:null,
+                    size: null,
+                    isLoading : false,
+                }
+                console.log('completed ',data);
+    
+                this.closeLoader();
             }
-            console.log('completed ',data);
             
         },
         isAllowedPDF(type)
@@ -202,6 +229,8 @@ var App = new Vue({
         {
             this.Error.showErrorModal(error);
             this.file_info.isLoading = false;
+
+            this.closeLoader();
         },
         getActiveTab(index){
             if(index === this.info_tabs.current)
@@ -250,8 +279,15 @@ var App = new Vue({
         setBackgroundColor()
         {
             return 'background-color: '+this.colorPicker.current.rgbaString;
+        },
+        closeLoader()
+        {
+            this.loading = {
+                visible:false,
+                loading_text: null,
+            }
         }
 
     },
-    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal}
+    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader}
 })

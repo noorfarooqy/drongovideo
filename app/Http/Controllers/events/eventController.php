@@ -27,7 +27,7 @@ class eventController extends Controller
     {
         $rules = [
             "identity" => "required|string|min:4|max:45",
-            "room_name" => "required|string|min:8|max:45"
+            "room_name" => "required|string|min:8|max:45",
         ];
 
         $is_valid = Validator::make($request->all(), $rules, []);

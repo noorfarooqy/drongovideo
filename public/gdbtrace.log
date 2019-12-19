@@ -1,0 +1,12 @@
+warning: Currently logging to gdbtrace.log.  Turn the logging off and on to make the new setting effective.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 19839]
+[New Thread 0x7fffedb85700 (LWP 19841)]
+[Thread 0x7fffedb85700 (LWP 19841) exited]
+[Inferior 1 (process 19835) exited normally]
+/usr/lib/libreoffice/program/gdbtrace:9: Error in sourced command file:
+No stack.
+Quit
+Undefined command: "exit".  Try "help".
+quit

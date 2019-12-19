@@ -11,6 +11,8 @@
 
 <body>
     <div class="container-fluid" id="App">
+        <loader v-if="loading.visible" v-bind="loading"
+        v-on:close-loader-modal="closeLoader()"></loader>
         <errormodal v-if="Error.visible" v-bind="Error"
         v-on:close-error-modal="Error.resetErrorModal()"></errormodal>
         <div class="row">
@@ -70,7 +72,7 @@
                             <span id="colorPickerContainer"></span>
                             <div class="file_container">
                                 {{-- <pdfjs></pdfjs> --}}
-                                <custom-canvas  :style="setBackgroundColor()" v-bind="{file_sharing: file_sharing}"></custom-canvas>
+                                <custom-canvas  :style="setBackgroundColor()" v-bind="{file_sharing: file_sharing.image}"></custom-canvas>
                             </div>
                         </div>
                         <div style="display:none">

@@ -10,19 +10,32 @@ export default {
             name: 'file viewer',
             version: 1,
             files: [],
-            config:null,
+            config : null,
+            
         }
     },
     methods: {
 
     },
+    computed: {
+        // config: function(imageConfig) {
+        //     return imageConfig;
+        // },
+        reconfigImage:  function (){
+
+            
+        }
+    },
     watch: {
         file_info: function(){
-            
-            var image = new window.Image();
-            image.src = 'https://drongovideo.local/pdfs/08b85cd637f48e879a6cff571576556742_ppt_-1.png';
-            
-            image.onload = () => {
+            if(this.file_info === null || this.file_info.src === "")
+            {
+                console.log('File is not thre ',this.file_info);
+                return;
+            }
+            var image = this.file_info.src;
+            var config = {};
+            // image.onload = () => {
                 console.log('image width ',image.width);
                 console.log('image height ',image.height);
                 var w,h;
@@ -37,11 +50,17 @@ export default {
                 }
                 else
                     h = image.height;
-                    
-                this.config = {image:image, x:0, y: 0, width:this.file_info.width-20, height:700};
-            }
-            console.log('page is ',image)
-        }
+                
+                this.config = {image:image, x:0, y: 0, width:this.file_info.width-20, height:700, src: this.file_info.url};
+                console.log('image updated config ',this.config);
+                // return config
+                // this.config = config;
+            // }
+            // console.log('page is ',image)
+            // this.config(config);
+                // return config
+            
+        },
     },
     props:["file_info"],
 
