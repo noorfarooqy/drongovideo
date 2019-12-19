@@ -107,6 +107,7 @@
                         video</button>
                 </div>
                 <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px"
+                    :style="getBackgroundColor()"
                     ref="stage" @mousedown="listenForAfterMouseDownEvent" @mousemove="listenForAfterMouseMoveEvent"
                     @mouseup="listenForAfterMouseUpEvent">
                     <v-layer style="border:thin solid red; margin:10px" ref="mainLayer">
@@ -427,6 +428,11 @@
                     current_time: null,
                     playing: false,
                 }
+            },
+            getBackgroundColor()
+            {
+                if(this.bg_color !== null)
+                    return 'background-color:'+this.bg_color.rgbaString;
             }
 
 
@@ -436,7 +442,7 @@
             errormodal,
             vFileViewer: fileviewer
         },
-        props: ["file_sharing"],
+        props: ["file_sharing", "bg_color"],
         watch: {
             file_sharing: function () {
                 console.log('its somewhere after me');

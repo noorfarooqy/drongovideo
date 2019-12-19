@@ -17041,6 +17041,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -17331,6 +17332,9 @@ __webpack_require__.r(__webpack_exports__);
         current_time: null,
         playing: false
       };
+    },
+    getBackgroundColor: function getBackgroundColor() {
+      if (this.bg_color !== null) return 'background-color:' + this.bg_color.rgbaString;
     }
   },
   components: {
@@ -17338,7 +17342,7 @@ __webpack_require__.r(__webpack_exports__);
     errormodal: _vuecomponents_errormodal_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     vFileViewer: _fileviewer_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
-  props: ["file_sharing"],
+  props: ["file_sharing", "bg_color"],
   watch: {
     file_sharing: function file_sharing() {
       console.log('its somewhere after me');
@@ -82322,6 +82326,7 @@ var render = function() {
                 ],
                 ref: "stage",
                 staticStyle: { border: "thin solid green", height: "700px" },
+                style: _vm.getBackgroundColor(),
                 attrs: { config: _vm.configKonva },
                 on: {
                   mousedown: _vm.listenForAfterMouseDownEvent,

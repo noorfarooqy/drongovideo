@@ -72,7 +72,10 @@
                             <span id="colorPickerContainer"></span>
                             <div class="file_container">
                                 {{-- <pdfjs></pdfjs> --}}
-                                <custom-canvas  :style="setBackgroundColor()" v-bind="{file_sharing: file_sharing.image}"></custom-canvas>
+                                <custom-canvas  :style="setBackgroundColor()" v-bind="{
+                                    file_sharing: file_sharing.image,
+                                    bg_color: colorPicker.current
+                                }"></custom-canvas>
                             </div>
                         </div>
                         <div style="display:none">
