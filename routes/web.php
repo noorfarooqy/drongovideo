@@ -16,3 +16,5 @@ Route::get('/', function () {
 });
 
 Route::get('/event/event', 'events\eventController@openEventPage');
+Route::get('/teacher/{teacher_id}/{interview_id}', 'events\eventController@oponInterviewForTeacher');
+Route::get('/school/{school_id}/{interview_id}', 'events\eventController@oponInterviewForSchool');

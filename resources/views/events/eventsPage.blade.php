@@ -121,15 +121,80 @@
                             </li>
                         </ul>
 
-                        <div class="tab-content">
+                    <div class="tab-content" >
                             <div id="schoolInfo" class="tab-pane " :class="getActiveClass(0)">
-                                This is the school ifno
+                                @if (isset($school_info) )
+                                <div class="card">
+                                    <div class="card-header">
+                                       
+                                        {{$school_info->name}}
+                                    </div>
+                                    <div class="card-image">
+                                        <img src="{{$school_info['employer_img']}}" style="width: 100%;" alt="">
+                                    </div>
+                                    <div class="card-body"></div>
+                                </div>
+                                @endif
                             </div>
                             <div id="employerInfo" class="tab-pane " :class="getActiveClass(1)">
-                                This is the employer ifno
+                                @if (isset($teacher_info) )
+                                <div class="card">
+                                    <div class="card-header">
+                                        
+                                        {{$teacher_info->full_name}}
+                                    </div>
+                                    <div class="card-image">
+                                        <img src="{{$teacher_info->head_photo}}" style="width: 100%;"  alt="">
+                                    </div>
+                                    <div class="card-body"></div>
+                                </div>
+                                @endif
                             </div>
                             <div id="chatInfo" class="tab-pane " :class="getActiveClass(2)">
-                                This is the chat ifno
+                                <div class="card">
+                                    <div class="card-header"></div>
+                                    <div class="card-body" style="height: 350px;overflow-y: auto;">
+                                        
+                                        
+                                        <div class="row mt-2 float-left">
+                                                <div class="sent-message card" style="background-color: rgb(223, 210, 199);">
+                                                    <div class="card-header" style="background-color: rgb(146, 132, 107);height:40px">
+                                                        <strong>Noor</strong> 
+                                                        <span class="hint" 
+                                                        style="position: absolute;right: 15px;
+                                                        font-size: 15px;color: #4d4848;">12:14pm</span>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        Are you crazy. who said that?
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <div class="row mt-3 float-right">
+                                                <div class="sent-message card " 
+                                                style="background-color: #c7d3df;">
+                                                        <div class="card-header" style="background-color: #85a2bc; height:40px">
+                                                            <span class="hint"style="font-size: 15px;color: #4d4848;">12:14pm</span>
+                                                            <strong style="position: absolute;right: 15px;">Abdi</strong> 
+                                                            
+                                                        </div>
+                                                        <div class="card-body">
+                                                            Are you crazy. who said that?
+                                                        </div>
+                                                    </div>
+                                        </div>
+                                        
+
+                                        
+
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="row">
+                                                <input type="text" placeholder="Enter text" class="input" 
+                                                class="col-md-7 col-lg-7"/>
+                                                <button class="btn btn-primary col-md-4 col-lg-4" >Send</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
