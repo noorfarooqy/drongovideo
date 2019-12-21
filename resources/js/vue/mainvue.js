@@ -22,14 +22,16 @@ var App = new Vue({
         Error: new Error(),
         Success: new Success(),
         Server: new ServerRequest(),
-        Connection : new Connection(),
+        Connection :null,
         local_video: {
             video_src: [],
             visible: false,
+            muted: true,
         },
         remote_video: {
-            video_src: null,
+            video_src: [],
             visible: false,
+            muted: true,
         },
         default_video: {
             video_src: '/images/offline.svg',
@@ -68,14 +70,16 @@ var App = new Vue({
         loading: {
             visible:false,
             loading_text: null,
-        }
+        },
+        SystemLog: [
+        ]
 
 
     },
     mounted() {
         // alert('ready');
-        this.getAccesstoken();
-        this.Cloudinary.launchUploadWidget();
+        this.Connection =new Connection(this.logSystem);
+        // this.getAccesstoken();
         
 
     },
@@ -94,8 +98,13 @@ var App = new Vue({
         },
         getAccesstoken()
         {
+            if(window.user_name === null || window.user_name === undefined)
+            {
+                this.showErrorModal("The user information is not set");
+                return;
+            }
             this.Server.setRequest({
-                identity: 'Noor',
+                identity: window.user_name+' '+window.user_id,
                 room_name: 'noor_room',
             });
             this.Server.serverRequest('/api/event/gettoken',
@@ -104,35 +113,69 @@ var App = new Vue({
         eventData(data)
         {
             console.log('data ',data);
-            // this.StartConnection(data.token, 'noor_room');
-            // this.SyncClient = new SyncClient(data.token, { logLevel: 'debug' });
-            // this.SyncClient.document('MyDocument')
-            // .then(document => {
-            //     console.log('document is set ',document)
-            // }, error=>{
-            //     console.log('error in document ',error);
-            // })
-            // .catch(error => {
-            //     console.log('catch error ',error);
-            // })
+            this.StartConnection(data.token, 'noor_room');
         },
         StartConnection(token,room_name)
         {
             this.Connection.StartConnection(token, room_name, this.ConnectionCallBack);
             
         },
-        ConnectionCallBack(room)
+        ConnectionCallBack(room, remote=0)
         {
-            this.Room = room;
-            console.log('Room ', this.Room);
-            console.log(this.Room.localParticipant.tracks);
-            var localtracks = this.Room.localParticipant.tracks;
-            localtracks.forEach(localtrack => {
-                this.local_video.video_src.push(localtrack);
-            })
+            if(!remote)
+            {
+
+                this.Room = room;
+                console.log('Room ', this.Room);
+                console.log(this.Room.localParticipant.tracks);
+                var localtracks = this.Room.localParticipant.tracks;
+                if(this.local_video.video_src.length >=2)
+                {
+                    this.local_video.video_src =[];
+                }
+                localtracks.forEach(localtrack => {
+                    this.local_video.video_src.push(localtrack);
+                });
+                this.default_video.visible = false;
+                this.local_video.visible = true;
+            }
+            else
+            {
+                console.log('receving track ',room);
+                var remotetrack =  room;
+                if(this.remote_video.video_src.length >=2)
+                {
+                    this.remote_video.video_src =[];
+                }
+                this.remote_video.video_src.push(remotetrack);
+                // this.default_video.visible = false;
+                this.remote_video.visible = true;
+                console.log('pushed new remote track ',this.remote_video)
+
+            }
+            
             // this.local_video.video_src = this.Room.localParticipant.v
-            this.default_video.visible = false;
-            this.local_video.visible = true;
+            
+        },
+        remoteAuidoToggle()
+        {
+            var remote_video = document.querySelector('.remote-video');
+            if(remote_video)
+            {
+                console.log('remote video will muted ', !remote_video.muted)
+                remote_video.muted = !remote_video.muted;
+                this.remote_video.muted = remote_video.muted;
+            }
+        },
+        localAuidoToggle()
+        {
+            var local_video = document.querySelector('.local-video');
+            if(local_video)
+            {
+                console.log('local video will muted ', !local_video.muted)
+                local_video.muted = !local_video.muted;
+                this.local_video.muted = local_video.muted;
+            }
         },
 
         uploadMainfiles(event,isPDF)
@@ -286,6 +329,22 @@ var App = new Vue({
                 visible:false,
                 loading_text: null,
             }
+        },
+        getTypeClass(type)
+        {
+            switch(type)
+            {
+                case 0:
+                    return 'alert alert-primary';
+                case 1: 
+                    return 'alert alert-success';
+                case 2:
+                    return 'alert alert-danger';
+            }
+        },
+        logSystem(log)
+        {
+            this.SystemLog.push(log);
         }
 
     },

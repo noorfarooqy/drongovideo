@@ -16,7 +16,7 @@
         <errormodal v-if="Error.visible" v-bind="Error"
         v-on:close-error-modal="Error.resetErrorModal()"></errormodal>
         <div class="row">
-            <div class="col-md-9 col-lg-9">
+            <div class="col-md-9 col-lg-9 col-sm-12 col-xs-12">
                 <div class="row">
                     <div class="card" style="width:100%; min-height: 100vh">
                         <div class="card-header">
@@ -85,39 +85,67 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-lg-3">
+            <div class="col-md-3 col-lg-3 col-sm-12 col-xs-12">
                 <div class="row">
                     <div class="card" style="width:100%">
                         <div class="card-header">
                             <h5 class="title">Connection status: </h5>
                         </div>
-                        <i class="card-body">
+                        <div class="card-body all-tracks" style="position:relative; padding:0">
+                            
+                            <localvideo v-if="local_video.visible" v-bind="local_video"></localvideo>
+                            <video class="card-image local-video" v-else
+                                :src="default_video.video_src" alt="Offline video image" ></video>
+                            
 
-                            <img class="card-image remote-video" v-if="remote_video.video_src === null"
-                                :src="default_video.video_src" alt="Offline video image" />
-
-
-                            <img class="card-image local-video" v-if="default_video.visible"
-                                :src="default_video.video_src" alt="Offline video image" />
-
-                            <div class="card-content" >
-                                <localvideo v-if="local_video.visible" v-bind="local_video"></localvideo>
-                                <remotevideo v-if="remote_video.visible" v-bind="remote_video"></remotevideo>
-                            </div>
+                            <remotevideo v-if="remote_video !== null && remote_video.visible" v-bind="remote_video"></remotevideo>
+                            <video class="card-image remote-video" v-else
+                            :src="default_video.video_src" alt="Offline video image"></video>
+                             
+                            
+                             
+                            
+                            
+                        </div>
+                        <div class="">
+                                <ul class="nav nav-tabs">
+                                    <li class="active nav-item" >
+                                        <a data-toggle="tab" class="nav-link" :class="" href="#schoolInfo" 
+                                        @click.prevent="localAuidoToggle()">
+                                            <img src="/images/microphone_muted.svg" height="30px" alt="" 
+                                                v-if="local_video.muted">
+                                            <img src="/images/microphone.svg" height="30px" alt="" class="remote_audio" v-else>
+                                        </a>
+                                    </li>
+                                    <li class="active nav-item" >
+                                        <a data-toggle="tab" class="nav-link" :class="" href="#schoolInfo" 
+                                            @click.prevent="remoteAuidoToggle()">
+                                            <img src="/images/audio_off.svg" height="30px" alt="" 
+                                                v-if="remote_video.muted">
+                                            <img src="/images/audio_on.svg" height="30px" alt="" class="remote_audio" v-else>
+                                            
+                                        </a>
+                                    </li>
+                                </ul>
+                        </div>
                     </div>
                     <div class="card" style="width:100%">
                         <ul class="nav nav-tabs">
                             <li class="active nav-item" >
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(0)" href="#schoolInfo" 
-                                @click.prevent="getActiveTab(0)">School Info</a>
+                                @click.prevent="getActiveTab(0)">School</a>
                             </li>
                             <li class=" nav-item">
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(1)" href="#employerInfo" 
-                                @click.prevent="getActiveTab(1)">Empoloyee info</a>
+                                @click.prevent="getActiveTab(1)">Employee</a>
                             </li>
                             <li class=" nav-item">
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(2)" href="#chatInfo" 
                                 @click.prevent="getActiveTab(2)">Chat</a>
+                            </li>
+                            <li class=" nav-item">
+                                <a data-toggle="tab" class="nav-link" :class="getActiveClass(2)" href="#systemLog" 
+                                @click.prevent="getActiveTab(3)">Log</a>
                             </li>
                         </ul>
 
@@ -196,6 +224,18 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div id="systemLog" class="tab-pane " :class="getActiveClass(1)">
+                                <ul style="list-style:none; height:200px; overflow-y:scroll" class="row"
+                                >
+                                    <li v-for="(Log, logKey) in SystemLog" :key="logKey" style="height: fit-content;"
+                                    :class="getTypeClass(Log.type)" class="col-md-11 col-lg-11">
+                                        <strong>@{{Log.head}}:</strong>
+                                        <span>@{{Log.message}}</span>
+                                        <div class="date" style="color:#85a2bc">@{{Log.timestamp}}</div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -206,6 +246,19 @@
 </body>
 {{-- <script src="/js/cloudinary/widgets_all.js" type="text/javascript"></script> --}}
 
+<script>
+        @if(isset($teacher_info) && $isteacher === true)
+           
+            console.log('is teacher ',"{{$isteacher}}");
+            window.user_name = "{{$teacher_info->full_name}}"
+            window.user_id = "{{$teacher_info->user_id}}"
+        @elseif(isset($school_info) && !$isteacher)
+            console.log('is schoool ',"{{$isteacher}}");
+    
+            window.user_name = "{{$school_info->name}}";
+            window.user_id = "{{$school_info->id}}";
+        @endif
+    </script>
 <script src="/fabric/fabric.js"></script>
 <script src="/js/mainvue.js"></script>
 <script src="/js/jquery.min.js"></script>

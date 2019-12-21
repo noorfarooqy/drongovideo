@@ -1,11 +1,5 @@
 <template>
-    <div class="card-image video" >
-        <div class="tracks">
-            
-        </div>
-        
-    </div>
-    
+   
 </template>
 
 <script>
@@ -25,17 +19,17 @@ export default {
         attachTracks()
         {
             console.log('wil attach tracks')
-            var container = document.querySelector('.tracks');
+            var container = document.querySelector('.all-tracks');
             this.video_src.forEach(track => {
-                // $('.video').append(track.attach())
                 
                 this.tracks.push({html: track.attach(), kind:track.kind})
-                // track.addClass('local-video');
                 var htmlTrack = track.attach();
                 if(track.kind === "video")
+                {
                     $(htmlTrack).addClass('local-video');
-                console.log('html track ',htmlTrack);
-                container.append(htmlTrack);
+                    console.log('html track ',htmlTrack);
+                    container.append(htmlTrack);
+                }
                 // container.addEventListener('DomRemoved',function(){
                     
                 // });

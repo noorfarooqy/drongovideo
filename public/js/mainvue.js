@@ -17517,12 +17517,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -17540,20 +17534,22 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       console.log('wil attach tracks');
-      var container = document.querySelector('.tracks');
+      var container = document.querySelector('.all-tracks');
       this.video_src.forEach(function (track) {
-        // $('.video').append(track.attach())
         _this.tracks.push({
           html: track.attach(),
           kind: track.kind
-        }); // track.addClass('local-video');
-
+        });
 
         var htmlTrack = track.attach();
-        if (track.kind === "video") $(htmlTrack).addClass('local-video');
-        console.log('html track ', htmlTrack);
-        container.append(htmlTrack); // container.addEventListener('DomRemoved',function(){
+
+        if (track.kind === "video") {
+          $(htmlTrack).addClass('local-video');
+          console.log('html track ', htmlTrack);
+          container.append(htmlTrack);
+        } // container.addEventListener('DomRemoved',function(){
         // });
+
       });
     }
   },
@@ -17582,29 +17578,54 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       name: 'remote video',
       version: 1,
-      tracks: []
+      tracks: [],
+      in_video_src: this.video_src
     };
   },
   created: function created() {},
+  mounted: function mounted() {// this.attachTracks();
+  },
+  updated: function updated() {
+    console.log('remote updated');
+  },
   methods: {
     attachTracks: function attachTracks() {
+      var _this = this;
+
+      var all_tracks = document.querySelector('.remote-video');
+      console.log('I have tracks ', all_tracks);
+
+      if (all_tracks) {
+        console.log('will remvoe them ');
+        all_tracks.remove();
+      }
+
       console.log('wil attach tracks');
+      var container = document.querySelector('.all-tracks');
+      this.tracks = [];
       this.video_src.forEach(function (track) {
         // $('.video').append(track.attach())
-        var container = document.querySelector('.tracks'); // this.tracks.push({html: track.attach(), kind:track.kind})
+        _this.tracks.push({
+          html: track.attach(),
+          kind: track.kind
+        }); // track.addClass('local-video');
 
-        container.append(track.attach());
-        container.addEventListener('DomRemoved', function () {});
+
+        var htmlTrack = track.attach();
+
+        if (track.kind === "video") {
+          $(htmlTrack).addClass('remote-video');
+          console.log('html track ', htmlTrack);
+          htmlTrack.style.height = null;
+          container.append(htmlTrack);
+        } // container.addEventListener('DomRemoved',function(){
+        // });
+
       });
     }
   },
@@ -82695,18 +82716,9 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div")
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-image video" }, [
-      _c("div", { staticClass: "tracks" })
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -82728,18 +82740,9 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _vm._m(0)
+  return _c("div")
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "video" }, [
-      _c("div", { staticClass: "tracks" })
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -95274,7 +95277,7 @@ var self;
 var _default =
 /*#__PURE__*/
 function () {
-  function _default() {
+  function _default(SystemLog) {
     _classCallCheck(this, _default);
 
     this.connect = null;
@@ -95289,22 +95292,85 @@ function () {
         width: 400
       }
     };
+    this.SystemLog = SystemLog;
+    this.room = null;
   }
 
   _createClass(_default, [{
     key: "StartConnection",
     value: function StartConnection(token, room_name, callback) {
+      var _this = this;
+
       this.options.name = room_name; // const {gconnect} = require('twilio-video');
 
       console.log('will open room ', room_name, 'with token ', token);
+      var self = this;
       twilio_video__WEBPACK_IMPORTED_MODULE_0___default.a.connect(token, this.options).then(function (room) {
         console.log('room successfully joined ', room);
+
+        _this.SystemLog({
+          type: 1,
+          head: "System",
+          message: "You have successfully joined the interview room " + room_name,
+          timestamp: _this.getTodayDate()
+        });
+
+        self.room = room; // self.AttachParticipantListener(callback);
+
+        room.on('trackSubscribed', function (track, participant) {
+          console.log('track joined the room ', participant);
+          console.log('track ', track);
+          self.SystemLog({
+            type: 1,
+            head: participant.identity,
+            message: "Have joined the interview room " + room_name,
+            timestamp: self.getTodayDate()
+          });
+          callback(track, true);
+        });
+        room.on('participantConnected', function (participant) {
+          console.log('parcipant joined the room ', participant);
+          self.SystemLog({
+            type: 1,
+            head: participant.identity,
+            message: "Have returned to the interview room " + room_name,
+            timestamp: self.getTodayDate()
+          });
+        });
+        room.on('participantDisconnected', function (participant) {
+          console.log('parcipant disconnected the room ', participant);
+          self.SystemLog({
+            type: 2,
+            head: participant.identity,
+            message: "Have left the interview room " + room_name,
+            timestamp: self.getTodayDate()
+          });
+        });
         callback(room);
       }, function (error) {
         console.log('error connection ', error);
       })["catch"](function (error) {
         console.log('caught error ', error);
       });
+    }
+  }, {
+    key: "AttachParticipantListener",
+    value: function AttachParticipantListener(callback) {
+      this.room.on('trackAdded', function (track, participant) {
+        console.log('parcipant joined the room ', participant);
+        callback(participant);
+      });
+    }
+  }, {
+    key: "getTodayDate",
+    value: function getTodayDate() {
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+
+      var yyyy = today.getFullYear();
+      today = yyyy + '-' + mm + '-' + dd;
+      return today;
     }
   }]);
 
@@ -95568,14 +95634,16 @@ var App = new Vue({
     Error: new _classes_Error__WEBPACK_IMPORTED_MODULE_2__["default"](),
     Success: new _classes_Success__WEBPACK_IMPORTED_MODULE_3__["default"](),
     Server: new _classes_ServerRequest__WEBPACK_IMPORTED_MODULE_4__["default"](),
-    Connection: new _classes_Connection__WEBPACK_IMPORTED_MODULE_5__["default"](),
+    Connection: null,
     local_video: {
       video_src: [],
-      visible: false
+      visible: false,
+      muted: true
     },
     remote_video: {
-      video_src: null,
-      visible: false
+      video_src: [],
+      visible: false,
+      muted: true
     },
     default_video: {
       video_src: '/images/offline.svg',
@@ -95615,12 +95683,12 @@ var App = new Vue({
     loading: {
       visible: false,
       loading_text: null
-    }
+    },
+    SystemLog: []
   },
   mounted: function mounted() {
     // alert('ready');
-    this.getAccesstoken();
-    this.Cloudinary.launchUploadWidget();
+    this.Connection = new _classes_Connection__WEBPACK_IMPORTED_MODULE_5__["default"](this.logSystem); // this.getAccesstoken();
   },
   methods: {
     triggerFileSharing: function triggerFileSharing() {
@@ -95633,24 +95701,20 @@ var App = new Vue({
       };
     },
     getAccesstoken: function getAccesstoken() {
+      if (window.user_name === null || window.user_name === undefined) {
+        this.showErrorModal("The user information is not set");
+        return;
+      }
+
       this.Server.setRequest({
-        identity: 'Noor',
+        identity: window.user_name + ' ' + window.user_id,
         room_name: 'noor_room'
       });
       this.Server.serverRequest('/api/event/gettoken', this.eventData, this.showErrorModal);
     },
     eventData: function eventData(data) {
-      console.log('data ', data); // this.StartConnection(data.token, 'noor_room');
-      // this.SyncClient = new SyncClient(data.token, { logLevel: 'debug' });
-      // this.SyncClient.document('MyDocument')
-      // .then(document => {
-      //     console.log('document is set ',document)
-      // }, error=>{
-      //     console.log('error in document ',error);
-      // })
-      // .catch(error => {
-      //     console.log('catch error ',error);
-      // })
+      console.log('data ', data);
+      this.StartConnection(data.token, 'noor_room');
     },
     StartConnection: function StartConnection(token, room_name) {
       this.Connection.StartConnection(token, room_name, this.ConnectionCallBack);
@@ -95658,16 +95722,55 @@ var App = new Vue({
     ConnectionCallBack: function ConnectionCallBack(room) {
       var _this = this;
 
-      this.Room = room;
-      console.log('Room ', this.Room);
-      console.log(this.Room.localParticipant.tracks);
-      var localtracks = this.Room.localParticipant.tracks;
-      localtracks.forEach(function (localtrack) {
-        _this.local_video.video_src.push(localtrack);
-      }); // this.local_video.video_src = this.Room.localParticipant.v
+      var remote = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
-      this.default_video.visible = false;
-      this.local_video.visible = true;
+      if (!remote) {
+        this.Room = room;
+        console.log('Room ', this.Room);
+        console.log(this.Room.localParticipant.tracks);
+        var localtracks = this.Room.localParticipant.tracks;
+
+        if (this.local_video.video_src.length >= 2) {
+          this.local_video.video_src = [];
+        }
+
+        localtracks.forEach(function (localtrack) {
+          _this.local_video.video_src.push(localtrack);
+        });
+        this.default_video.visible = false;
+        this.local_video.visible = true;
+      } else {
+        console.log('receving track ', room);
+        var remotetrack = room;
+
+        if (this.remote_video.video_src.length >= 2) {
+          this.remote_video.video_src = [];
+        }
+
+        this.remote_video.video_src.push(remotetrack); // this.default_video.visible = false;
+
+        this.remote_video.visible = true;
+        console.log('pushed new remote track ', this.remote_video);
+      } // this.local_video.video_src = this.Room.localParticipant.v
+
+    },
+    remoteAuidoToggle: function remoteAuidoToggle() {
+      var remote_video = document.querySelector('.remote-video');
+
+      if (remote_video) {
+        console.log('remote video will muted ', !remote_video.muted);
+        remote_video.muted = !remote_video.muted;
+        this.remote_video.muted = remote_video.muted;
+      }
+    },
+    localAuidoToggle: function localAuidoToggle() {
+      var local_video = document.querySelector('.local-video');
+
+      if (local_video) {
+        console.log('local video will muted ', !local_video.muted);
+        local_video.muted = !local_video.muted;
+        this.local_video.muted = local_video.muted;
+      }
     },
     uploadMainfiles: function uploadMainfiles(event, isPDF) {
       console.log('loading file');
@@ -95807,6 +95910,21 @@ var App = new Vue({
         visible: false,
         loading_text: null
       };
+    },
+    getTypeClass: function getTypeClass(type) {
+      switch (type) {
+        case 0:
+          return 'alert alert-primary';
+
+        case 1:
+          return 'alert alert-success';
+
+        case 2:
+          return 'alert alert-danger';
+      }
+    },
+    logSystem: function logSystem(log) {
+      this.SystemLog.push(log);
     }
   },
   components: {
