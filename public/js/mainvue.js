@@ -95284,16 +95284,27 @@ function () {
     this.online = 0;
     this.video = null;
     self = this;
+    this.datatrack = new twilio_video__WEBPACK_IMPORTED_MODULE_0__["LocalDataTrack"](); // this.localAudioTrack = new LocalAudioTrack();
+    // this.localVideoTrack = new LocalVideoTrack();
+
     this.options = {
       name: 'room_name',
-      // logLevel: 'debug',
+      // logLevel: 'debug',  
       audio: true,
       video: {
         width: 400
-      }
+      },
+      data: true // tracks: [ this.localAudioTrack],
+
     };
     this.SystemLog = SystemLog;
     this.room = null;
+    this.dataTrackPublished = {}; // self  = this;;
+
+    this.dataTrackPublished.promise = new Promise(function (resolve, reject) {
+      self.dataTrackPublished.resolve = resolve;
+      self.dataTrackPublished.reject = reject;
+    });
   }
 
   _createClass(_default, [{
@@ -95315,9 +95326,12 @@ function () {
           timestamp: _this.getTodayDate()
         });
 
+        _this.online = 1;
         self.room = room; // self.AttachParticipantListener(callback);
 
         room.on('trackSubscribed', function (track, participant) {
+          var _this2 = this;
+
           console.log('track joined the room ', participant);
           console.log('track ', track);
           self.SystemLog({
@@ -95326,6 +95340,22 @@ function () {
             message: "Have joined the interview room " + room_name,
             timestamp: self.getTodayDate()
           });
+
+          if (track.kind === "data") {
+            track.on('message', function (data) {
+              // console.log(data);
+              _this2.SystemLog({
+                type: 1,
+                message: data,
+                head: 'system:'
+              });
+
+              console.log('Received message ', data);
+            });
+          } // room.
+          // this.dataTrackPublished.resolve();
+
+
           callback(track, true);
         });
         room.on('participantConnected', function (participant) {
@@ -95345,6 +95375,9 @@ function () {
             message: "Have left the interview room " + room_name,
             timestamp: self.getTodayDate()
           });
+        });
+        room.on('message', function (data) {
+          console.log('received message ', data);
         });
         callback(room);
       }, function (error) {
@@ -95371,6 +95404,36 @@ function () {
       var yyyy = today.getFullYear();
       today = yyyy + '-' + mm + '-' + dd;
       return today;
+    }
+  }, {
+    key: "sendMessage",
+    value: function sendMessage(message) {
+      console.log('asked to send message');
+
+      if (this.dataTrackPublished === {} || this.dataTrackPublished === null) {
+        this.SystemLog({
+          type: 2,
+          head: "System",
+          message: "The data track for sending message is not published",
+          timestamp: this.getTodayDate()
+        });
+        return;
+      }
+
+      if (this.datatrack === null) {
+        this.SystemLog({
+          type: 2,
+          head: "System",
+          message: "The data track for sending message is not set",
+          timestamp: this.getTodayDate()
+        });
+        return;
+      }
+
+      console.log('sending message ', message);
+      this.dataTrackPublished.promise.then(function () {
+        return self.dataTrack.send(message);
+      });
     }
   }]);
 
@@ -95684,7 +95747,9 @@ var App = new Vue({
       visible: false,
       loading_text: null
     },
-    SystemLog: []
+    SystemLog: [],
+    is_hosting: !window.type,
+    host_type: window.type
   },
   mounted: function mounted() {
     // alert('ready');
@@ -95751,8 +95816,12 @@ var App = new Vue({
 
         this.remote_video.visible = true;
         console.log('pushed new remote track ', this.remote_video);
-      } // this.local_video.video_src = this.Room.localParticipant.v
+      }
 
+      this.Connection.sendMessage({
+        m: 'message',
+        type: 'text'
+      }); // this.local_video.video_src = this.Room.localParticipant.v
     },
     remoteAuidoToggle: function remoteAuidoToggle() {
       var remote_video = document.querySelector('.remote-video');
@@ -95925,6 +95994,9 @@ var App = new Vue({
     },
     logSystem: function logSystem(log) {
       this.SystemLog.push(log);
+    },
+    getHostInControl: function getHostInControl() {
+      if (this.is_hosting) return "You in control";else return this.host_type === 0 ? "Teacher in Control " : "School in control";
     }
   },
   components: {

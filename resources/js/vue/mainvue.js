@@ -72,7 +72,9 @@ var App = new Vue({
             loading_text: null,
         },
         SystemLog: [
-        ]
+        ],
+        is_hosting: !window.type,
+        host_type: window.type,
 
 
     },
@@ -153,7 +155,7 @@ var App = new Vue({
                 console.log('pushed new remote track ',this.remote_video)
 
             }
-            
+            this.Connection.sendMessage({m:'message', type: 'text'});
             // this.local_video.video_src = this.Room.localParticipant.v
             
         },
@@ -345,7 +347,14 @@ var App = new Vue({
         logSystem(log)
         {
             this.SystemLog.push(log);
-        }
+        },
+        getHostInControl()
+        {
+            if(this.is_hosting)
+                return "You in control";
+            else
+                return this.host_type === 0 ? "Teacher in Control " : "School in control"
+        },
 
     },
     components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader}

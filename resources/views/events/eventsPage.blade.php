@@ -64,6 +64,46 @@
                                             </a>
                                         </li>
                                     </ul>
+
+                                    <ul class="nav navbar-nav navbar-right mt-2" >
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination justify-content-end ml-3" >
+                                                <li class="page-item "  v-if="is_hosting">
+                                                    <a href="" class="nav-link">
+                                                        <img src="/images/is_host_true.svg" alt="You are controlling" height="28px">
+                                                        <span v-text="getHostInControl()"></span> 
+                                                    </a>
+                                                    
+                                                </li>
+
+                                                <li class="page-item " v-else>
+                                                    <a href="" class="nav-link">
+                                                        <img src="/images/is_host_false.svg" alt="You are not controlling" height="28px" >
+                                                        <span v-text="getHostInControl()"></span> 
+                                                    </a>
+                                                    
+                                                </li>
+
+                                                <li class="page-item ml-3" v-if="is_hosting">
+                                                    <a href="" class="nav-link">
+                                                        <img src="/images/switch.svg" alt="You are not controlling" height="28px" >
+                                                        Give out 
+                                                    </a>
+                                                     
+                                                </li>
+
+                                                <li class="page-item ml-3" v-else>
+                                                    <a href="" class="nav-link">
+                                                        <img src="/images/swap.svg" alt="You are not controlling" height="30px" >
+                                                        <span v-if="host_type == 0 ">Get control</span>
+                                                        <span v-if="host_type == 1 ">Request control</span>
+                                                    </a>
+                                                    
+                                                </li>
+
+                                            </ul>
+                                        </nav>
+                                    </ul>
                                 </div>
                             </nav>
                         </div>
@@ -89,7 +129,12 @@
                 <div class="row">
                     <div class="card" style="width:100%">
                         <div class="card-header">
-                            <h5 class="title">Connection status: </h5>
+                            <h5 class="title">Connection status: 
+                                <img src="/images/online.svg" height="40px" alt="" 
+                                    v-if="Connection && Connection.online"  >
+                                    <img src="/images/offline.svg" height="40px" alt="" 
+                                        v-if="Connection && !Connection.online"  >
+                            </h5>
                         </div>
                         <div class="card-body all-tracks" style="position:relative; padding:0">
                             
@@ -148,6 +193,7 @@
                                 @click.prevent="getActiveTab(3)">Log</a>
                             </li>
                         </ul>
+                        
 
                     <div class="tab-content" >
                             <div id="schoolInfo" class="tab-pane " :class="getActiveClass(0)">
@@ -252,11 +298,13 @@
             console.log('is teacher ',"{{$isteacher}}");
             window.user_name = "{{$teacher_info->full_name}}"
             window.user_id = "{{$teacher_info->user_id}}"
+            window.type = parseInt ("{{$isteacher}}") === 1
         @elseif(isset($school_info) && !$isteacher)
             console.log('is schoool ',"{{$isteacher}}");
     
             window.user_name = "{{$school_info->name}}";
             window.user_id = "{{$school_info->id}}";
+            window.type = parseInt ("{{$isteacher}}") === 1
         @endif
     </script>
 <script src="/fabric/fabric.js"></script>
