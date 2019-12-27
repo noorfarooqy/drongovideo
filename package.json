@@ -20,8 +20,10 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
+        "axios-progress-bar": "^1.2.0",
         "cloudinary-vue": "^1.0.0-beta3",
         "konva": "^4.0.18",
+        "object-hash": "^2.0.1",
         "pdfjs-dist": "^2.2.228",
         "twilio-sync": "^0.11.5",
         "twilio-video": "^1.20.0",

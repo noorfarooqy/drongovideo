@@ -27,9 +27,14 @@ export default class {
             self.dataTrackPublished.resolve = resolve;
             self.dataTrackPublished.reject = reject;
           });
+        this.chatRoom = new RTCMultiConnection();
+        this.chatConfig = {
+            data: true,
+        }
+        this.chatRoom.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
 
     }
-    StartConnection(token, room_name, callback)
+    StartConnection(token, room_name, callback, messageReceiveCallback)
     {
         this.options.name = room_name;
         // const {gconnect} = require('twilio-video');
@@ -43,7 +48,8 @@ export default class {
                 head: "System",
                 message: "You have successfully joined the interview room "+room_name,
                 timestamp: this.getTodayDate()
-            })
+            });
+            this.startChatConnection(room_name, messageReceiveCallback);
             this.online = 1;
             self.room = room;
             // self.AttachParticipantListener(callback);
@@ -56,21 +62,6 @@ export default class {
                     message: "Have joined the interview room "+room_name,
                     timestamp: self.getTodayDate()
                 })
-                if(track.kind === "data")
-                {
-                    track.on('message', data => {
-                        // console.log(data);
-                        this.SystemLog({
-                            type:1,
-                            message: data,
-                            head: 'system:',
-                        });
-                        console.log('Received message ',data);
-                      });
-                    
-                }
-                // room.
-                // this.dataTrackPublished.resolve();
                 callback(track, true);
             })
             room.on('participantConnected', function(participant) {
@@ -92,9 +83,6 @@ export default class {
                     timestamp: self.getTodayDate()
                 })
             });
-            room.on('message', function(data) {
-                console.log('received message ',data)
-            })
             callback(room);
         },
         error => {
@@ -121,30 +109,40 @@ export default class {
         today =  yyyy +'-'+ mm + '-' + dd ;
         return today;
     }
-    sendMessage(message)
+    sendMessage(message, sendCallback=null)
     {
-        console.log('asked to send message');
-        if(this.dataTrackPublished === {} || this.dataTrackPublished === null)
+        console.log('sending message ',message)
+        this.chatRoom.send(message);
+        if(sendCallback)
         {
-            this.SystemLog({
-                type:2,
-                head: "System",
-                message: "The data track for sending message is not published",
-                timestamp: this.getTodayDate(),
-            })
-            return;
+            message.origin = 1;
+            sendCallback(message);
         }
-        if(this.datatrack === null)
+    }
+    startChatConnection(room_name, messageReceiveCallback)
+    {
+        this.chatRoom.session = this.chatConfig;
+        this.chatRoom.onopen = function(){
+            self.SystemLog({
+                type:1,
+                head: "System(RTC)",
+                message: "The data track for sending message is  set",
+                timestamp: self.getTodayDate(),
+            })
+        }
+        this.chatRoom.onmessage = function(event)
         {
-            this.SystemLog({
-                type:2,
-                head: "System",
-                message: "The data track for sending message is not set",
-                timestamp: this.getTodayDate(),
-            })
-            return;
+            console.log('received message ',event);
+            self.SystemLog({
+                type:1,
+                head: "System(RTC)",
+                message: "New message has been received",
+                timestamp: self.getTodayDate(),
+            });
+            if(messageReceiveCallback)
+                messageReceiveCallback(event.data);
+
         }
-        console.log('sending message ',message);
-        this.dataTrackPublished.promise.then(() => self.dataTrack.send(message));
+        this.chatRoom.openOrJoin(room_name);
     }
 }

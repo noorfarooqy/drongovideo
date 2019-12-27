@@ -132,6 +132,7 @@
     import errormodal from "../vuecomponents/errormodal.vue";
     import Error from "../classes/Error";
     import fileviewer from "./fileviewer.vue";
+    import Hasher from "object-hash"
     export default {
         data() {
             return {
@@ -164,12 +165,13 @@
                 transformerStatus: false,
                 selectedImageName: '',
                 isLoading: false,
+                previous_hash : null,
 
 
             };
         },
         created() {
-
+            
         },
         mounted() {
             this.configKonva.width = this.getClientWidth();
@@ -181,6 +183,38 @@
             },
             getClientHeight() {
                 return this.$refs.cardHW.clientHeight;
+            },
+            stageUrl()
+            {
+                if(!this.is_hosting)
+                    return;
+                var stage = this.$refs.stage.getStage();
+                var uri = stage.toDataURL();
+                var hash = Hasher({'src':uri })
+                if(hash === this.previous_hash)
+                {
+                    console.log('previous hash detected ',hash, ' --- ',this.previous_hash);
+                    return;
+                }
+                this.previous_hash = hash;
+                console.log('new hash ',this.previous_hash);
+                if(this.messageSender)
+                {
+                        var sender = this.messageSender;
+                        
+                        sender({
+                            message:uri,
+                            head: "System",
+                            type:1,
+                            timestamp:'now',
+                            origin:0
+                        });
+                        
+                }
+                else
+                    console.log('sender is not set ');
+                
+                
             },
             listenForAfterMouseDownEvent(e) {
                 var pos = this.$refs.stage.getStage().getPointerPosition();
@@ -208,6 +242,7 @@
             },
             listenForAfterMouseMoveEvent(e) {
                 var pos = this.$refs.stage.getStage().getPointerPosition();
+                this.stageUrl();
             },
             listenForAfterMouseUpEvent(e) {
                 var pos = this.$refs.stage.getStage().getPointerPosition();
@@ -442,10 +477,17 @@
             errormodal,
             vFileViewer: fileviewer
         },
-        props: ["file_sharing", "bg_color"],
+        props: ["file_sharing", "bg_color", 'messageSender','is_hosting'],
         watch: {
             file_sharing: function () {
                 console.log('its somewhere after me');
+                if(this.file_sharing.type)
+                {
+                    console.log('image loaded canvas ',image)
+                    this.all.imageConfig = this.file_sharing.image
+                    return;
+                }
+
                 this.shared_file =this.file_sharing;
                 this.all.file_sharing = {};
                 this.all.file_sharing.width = this.getClientWidth();

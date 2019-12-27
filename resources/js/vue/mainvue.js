@@ -21,7 +21,7 @@ var App = new Vue({
     data: {
         Error: new Error(),
         Success: new Success(),
-        Server: new ServerRequest(),
+        Server: null,
         Connection :null,
         local_video: {
             video_src: [],
@@ -50,6 +50,7 @@ var App = new Vue({
             school:true,
             employee: false,
             chat:false,
+            log:false,
             current:0,
         },
         file_info: {
@@ -75,17 +76,102 @@ var App = new Vue({
         ],
         is_hosting: !window.type,
         host_type: window.type,
+        Chat: {
+            message: null,
+            type:0,
+            origin:0,
+            head:null,
+            timestamp:null,
+        },
+        chat_message:null,
+        messages: [],
+        
 
 
     },
     mounted() {
         // alert('ready');
+        this.Server = new ServerRequest(this.onProgressBar);
         this.Connection =new Connection(this.logSystem);
         // this.getAccesstoken();
-        
+        this.Connection.startChatConnection('noor_chat_room',this.showMessage);
+
 
     },
     methods: {
+        onProgressBar(percent, isDownload)
+        {
+            console.log('percentage ',percent);
+            if(isDownload)
+            {
+                if(percent >= 100 )
+                    this.loading.loading_text = "Downloading your file. This will take few seconds...";
+                else
+                    this.loading.loading_text =  "Downloading file "+percent+ " % ";
+            }
+            else
+            {
+                if(percent >= 100 )
+                    this.loading.loading_text = "Processing your file. This will take few seconds...";
+                else
+                    this.loading.loading_text =  "Uploading file "+percent+ " % ";
+            }
+            
+        },
+        canvasUpdate(message)
+        {
+            this.Connection.sendMessage(message, this.showMessage);
+        },
+        sendChat()
+        {
+            if(this.chat_message === "" || this.chat_message === null)
+                return;
+            else
+            {
+                this.Chat.message = this.chat_message;
+                this.Chat.type = 0;
+                this.Chat.origin = 0;
+                this.Chat.head = window.user_name;
+                this.Chat.timestamp = this.Connection.getTodayDate()
+            }
+
+            this.Connection.sendMessage(this.Chat, this.showMessage);
+            this.chat_message = null
+                
+        },
+        showMessage(message)
+        {
+            if(message.type == 0 )
+                this.messages.push(message);
+            else if(message.type == 1)
+            {
+                var image = new window.Image();
+                image.src =message.message;
+                image.onload =() => {
+                    this.file_sharing.image = {
+                        image: image,
+                        width: 500,
+                        height: 700,
+                        pages: [],
+                        current_page: 0,
+                        num_pages: 1,
+                        type:1
+                    }
+        
+                    this.closeLoader();
+                }
+            }
+            else
+            {
+                console.log('uknown message type ',message);
+                this.logSystem({
+                    type: 1,
+                    head: "System",
+                    message: "Uknown message type received from "+message.head,
+                    timestamp: this.Connection.getTodayDate()
+                })
+            }
+        },
         triggerFileSharing()
         {
             this.file_sharing = {
@@ -119,7 +205,7 @@ var App = new Vue({
         },
         StartConnection(token,room_name)
         {
-            this.Connection.StartConnection(token, room_name, this.ConnectionCallBack);
+            this.Connection.StartConnection(token, room_name, this.ConnectionCallBack, this.showMessage);
             
         },
         ConnectionCallBack(room, remote=0)
@@ -229,7 +315,8 @@ var App = new Vue({
                     height: 700,
                     pages: pages,
                     current_page: 0,
-                    num_pages: pages.length
+                    num_pages: pages.length,
+                    type:0
                 }
                 this.file_info ={
                     src:null,
@@ -284,6 +371,7 @@ var App = new Vue({
             this.info_tabs.employee = index === 1;
             this.info_tabs.chat = index === 2;
             this.info_tabs.current = index;
+            this.info_tabs.log = index === 3;
         },
         getActiveClass(index){
             if(index === this.info_tabs.current)
@@ -355,6 +443,15 @@ var App = new Vue({
             else
                 return this.host_type === 0 ? "Teacher in Control " : "School in control"
         },
+        getMessageClass(origin)
+        {
+            if(origin)
+            {
+                return 'float-right';
+            }
+            else
+                return 'float-left'
+        }
 
     },
     components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader}

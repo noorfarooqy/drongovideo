@@ -1,19 +1,48 @@
 export default class serverRequest {
-    constructor() {
+    constructor(onProgress) {
       this.req = null;
       this.error = null;
       this.data =  null;
+      this.config = {
+        onUploadProgress(progressEvent) {
+         var percentCompleted = Math.round((progressEvent.loaded * 100) /
+           progressEvent.total);
+   
+         // execute the callback
+         if (onProgress) 
+         {
+           console.log('progress ',percentCompleted);
+           onProgress(percentCompleted,0)
+         }
+   
+         return percentCompleted;
+       },
+       onDownloadProgress(progressEvent){
+
+          var percentCompleted = Math.round((progressEvent.loaded * 100) /
+          progressEvent.total);
+
+          // execute the callback
+          if (onProgress) 
+          {
+            console.log('progress ',percentCompleted);
+            onProgress(percentCompleted, 1)
+          }
+
+          return percentCompleted;
+       }
+     };
     }
     setRequest(req)
     {
       console.log('will set request ',req);
       this.req = req;
     }
-    serverRequest(url, successCallback, errorCallback, args=[])
+    serverRequest(url, successCallback, errorCallback,progressBar=null)
     {
         //args contains list of functions or additional properties
         //for the successCallback
-      axios.post(url, this.req).
+      axios.post(url, this.req, this.config).
       then(response => {
         response = response.data;
         if(response.hasOwnProperty('error_message'))
@@ -27,7 +56,7 @@ export default class serverRequest {
         {
           console.log('success request ',response);
           this.data = response.data;
-          successCallback(this.data, args);
+          successCallback(this.data);
           return true;
         }
         else

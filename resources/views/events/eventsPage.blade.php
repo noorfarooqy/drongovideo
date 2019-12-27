@@ -113,8 +113,8 @@
                             <div class="file_container">
                                 {{-- <pdfjs></pdfjs> --}}
                                 <custom-canvas  :style="setBackgroundColor()" v-bind="{
-                                    file_sharing: file_sharing.image,
-                                    bg_color: colorPicker.current
+                                    file_sharing: file_sharing.image, messageSender: canvasUpdate,
+                                    bg_color: colorPicker.current, is_hosting:is_hosting
                                 }"></custom-canvas>
                             </div>
                         </div>
@@ -189,7 +189,7 @@
                                 @click.prevent="getActiveTab(2)">Chat</a>
                             </li>
                             <li class=" nav-item">
-                                <a data-toggle="tab" class="nav-link" :class="getActiveClass(2)" href="#systemLog" 
+                                <a data-toggle="tab" class="nav-link" :class="getActiveClass(3)" href="#systemLog" 
                                 @click.prevent="getActiveTab(3)">Log</a>
                             </li>
                         </ul>
@@ -228,35 +228,41 @@
                                 <div class="card">
                                     <div class="card-header"></div>
                                     <div class="card-body" style="height: 350px;overflow-y: auto;">
+                                    
                                         
-                                        
-                                        <div class="row mt-2 float-left">
-                                                <div class="sent-message card" style="background-color: rgb(223, 210, 199);">
+                                        <div class="row mt-2 " v-for="(message, mkey) in messages" :key="mkey"
+                                            :class="getMessageClass(message.origin)"  style="width:100%"  >
+                                                <div class="sent-message card" style="background-color: rgb(223, 210, 199);width:100%" 
+                                                v-if="!message.origin">
                                                     <div class="card-header" style="background-color: rgb(146, 132, 107);height:40px">
-                                                        <strong>Noor</strong> 
+                                                        <strong>@{{message.head}}</strong> <br>
+                                                        
+                                                    </div>
+                                                    <div class="card-body" >
+                                                        @{{message.message}}<br>
                                                         <span class="hint" 
-                                                        style="position: absolute;right: 15px;
-                                                        font-size: 15px;color: #4d4848;">12:14pm</span>
+                                                        style="position: absolute; float:left
+                                                        font-size: 13px;color: #4d4848;">@{{message.timestamp}}</span>
                                                     </div>
-                                                    <div class="card-body">
-                                                        Are you crazy. who said that?
-                                                    </div>
+                                                    
                                                 </div>
-                                        </div>
-                                        <div class="row mt-3 float-right">
-                                                <div class="sent-message card " 
-                                                style="background-color: #c7d3df;">
+
+                                                <div class="rec-message card " v-if="message.origin"
+                                                style="background-color: #c7d3df;width:100%">
                                                         <div class="card-header" style="background-color: #85a2bc; height:40px">
-                                                            <span class="hint"style="font-size: 15px;color: #4d4848;">12:14pm</span>
-                                                            <strong style="position: absolute;right: 15px;">Abdi</strong> 
+                                                        
+                                                        <strong style="position: absolute;right: 15px;">@{{message.head}}</strong> 
+                                                        
                                                             
                                                         </div>
-                                                        <div class="card-body">
-                                                            Are you crazy. who said that?
+                                                        <div class="card-body" style="text-align:right">
+                                                            @{{message.message}}<br>
+                                                            <span class="hint"style="font-size: 15px;color: #4d4848; float:right"
+                                                        >@{{message.timestamp}}</span>
                                                         </div>
+                                                        
                                                     </div>
                                         </div>
-                                        
 
                                         
 
@@ -264,14 +270,14 @@
                                     <div class="card-footer">
                                         <div class="row">
                                                 <input type="text" placeholder="Enter text" class="input" 
-                                                class="col-md-7 col-lg-7"/>
-                                                <button class="btn btn-primary col-md-4 col-lg-4" >Send</button>
+                                                class="col-md-7 col-lg-7"/ v-model="chat_message">
+                                                <button class="btn btn-primary col-md-4 col-lg-4" @click.prevent="sendChat()">Send</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div id="systemLog" class="tab-pane " :class="getActiveClass(1)">
+                            <div id="systemLog" class="tab-pane " :class="getActiveClass(3)">
                                 <ul style="list-style:none; height:200px; overflow-y:scroll" class="row"
                                 >
                                     <li v-for="(Log, logKey) in SystemLog" :key="logKey" style="height: fit-content;"
@@ -292,6 +298,8 @@
 </body>
 {{-- <script src="/js/cloudinary/widgets_all.js" type="text/javascript"></script> --}}
 
+<script src="/connections/RTCMultiConnection.min.js"></script>
+<script src="/connections/socket.io.js"></script>
 <script>
         @if(isset($teacher_info) && $isteacher === true)
            
@@ -311,6 +319,5 @@
 <script src="/js/mainvue.js"></script>
 <script src="/js/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
-
 
 </html>
