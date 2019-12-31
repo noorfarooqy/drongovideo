@@ -20,10 +20,15 @@ class AccessTokenController extends Controller
 
     public function generateAccessToken(Request $request)
     {
+        if ($request->identity == null) {
+            $this->Status->setError(["Identity is not set"]);
+            return $this->Status->getError();
+        }
         $token = new AccessToken(
             env('TWILIO_ACCOUNT_SID'),
             env('TWILIO_SID'),
             env('TWILIO_SECRET'),
+            3600,
             $request->identity,
         );
         $videoGrant = new VideoGrant();
