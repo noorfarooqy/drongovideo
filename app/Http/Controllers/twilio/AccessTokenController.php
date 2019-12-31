@@ -29,7 +29,7 @@ class AccessTokenController extends Controller
             env('TWILIO_SID'),
             env('TWILIO_SECRET'),
             3600,
-            $request->identity,
+            $request->identity
         );
         $videoGrant = new VideoGrant();
         $videoGrant->setRoom($request->room_name);
