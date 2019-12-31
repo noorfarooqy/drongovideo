@@ -55,11 +55,11 @@ class eventController extends Controller
 
         $school_info = $interview[0]->schoolInfo;
         if ($school_info === null || $school_info->count() <= 0) {
-            return view('error.invalid_school');
+            return view('errors.invalid_school');
         }
         $teacher_info = $interview[0]->teacherInfo;
         if ($teacher_info === null || $teacher_info->count() <= 0 || $teacher_info->user_id !== (int) $teacher_id) {
-            return view('error.invalid_teacher');
+            return view('errors.invalid_teacher');
         }
         $is_time_for_interview = $this->isInterviewTime($interview);
         if ($is_time_for_interview !== true) {
@@ -76,11 +76,11 @@ class eventController extends Controller
         ])->get();
         $school_info = $interview[0]->schoolInfo;
         if ($school_info === null || $school_info->count() <= 0 || $school_info->id !== (int)$school_id) {
-            return view('error.invalid_school');
+            return view('errors.invalid_school');
         }
         $teacher_info = $interview[0]->teacherInfo;
         if ($teacher_info === null || $teacher_info->count() <= 0) {
-            return view('error.invalid_teacher');
+            return view('errors.invalid_teacher');
         }
         $is_time_for_interview = $this->isInterviewTime($interview);
         if ($is_time_for_interview !== true) {

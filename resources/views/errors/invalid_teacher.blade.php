@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-	<title>404 - 100CHINAJOBS</title>
+	<title>404 -  100CHINAJOBS</title>
 
 	<!-- Google font -->
 	<link href="/cssfonts/montserrat.css?family=Montserrat:700,900" rel="stylesheet">
@@ -29,10 +29,10 @@
 	<div id="notfound">
 		<div class="notfound">
 			<div class="notfound-404">
-				<h1>INVALID SCHOOL INFORMATION</h1>
-				<h2> COULD NOT FIND YOUR INFORMATION IN OUR SYSTEM </h2>
+				<h1>TEACHER INFORMATION NOT FOUND</h1>
+				<h2>We could not find your Information</h2>
 			</div>
-			<a href="/"  style="margin-top:200px">Homepage</a>
+			<a href="/">Homepage</a>
 		</div>
 	</div>
 
