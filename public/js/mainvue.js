@@ -96644,8 +96644,8 @@ var App = new Vue({
   mounted: function mounted() {
     // alert('ready');
     this.Server = new _classes_ServerRequest__WEBPACK_IMPORTED_MODULE_4__["default"](this.onProgressBar);
-    this.Connection = new _classes_Connection__WEBPACK_IMPORTED_MODULE_5__["default"](this.logSystem); // this.getAccesstoken();
-
+    this.Connection = new _classes_Connection__WEBPACK_IMPORTED_MODULE_5__["default"](this.logSystem);
+    this.getAccesstoken();
     this.Connection.startChatConnection('noor_chat_room', this.showMessage);
   },
   methods: {

@@ -93,7 +93,7 @@ var App = new Vue({
         // alert('ready');
         this.Server = new ServerRequest(this.onProgressBar);
         this.Connection =new Connection(this.logSystem);
-        // this.getAccesstoken();
+        this.getAccesstoken();
         this.Connection.startChatConnection('noor_chat_room',this.showMessage);
 
 
