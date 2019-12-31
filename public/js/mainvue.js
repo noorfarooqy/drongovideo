@@ -17044,6 +17044,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -17082,7 +17089,8 @@ __webpack_require__.r(__webpack_exports__);
       transformerStatus: false,
       selectedImageName: '',
       isLoading: false,
-      previous_hash: null
+      previous_hash: null,
+      previous_color: null
     };
   },
   created: function created() {},
@@ -17286,6 +17294,8 @@ __webpack_require__.r(__webpack_exports__);
         _this2.all.file_sharing.height = _this2.getClientHeight();
         _this2.all.file_sharing.src = image, _this2.all.file_sharing.url = image.src, self.isLoading = false;
       };
+
+      this.stageUrl();
     },
     nextFilePage: function nextFilePage() {
       var _this3 = this;
@@ -17314,6 +17324,8 @@ __webpack_require__.r(__webpack_exports__);
         _this3.all.file_sharing.src = image;
         _this3.all.file_sharing.url = image.src, self.isLoading = false;
       };
+
+      ctx.drawImage(image, 0, 0);
     },
     //modals
     disMissErrorModal: function disMissErrorModal() {
@@ -17366,7 +17378,25 @@ __webpack_require__.r(__webpack_exports__);
       };
     },
     getBackgroundColor: function getBackgroundColor() {
-      if (this.bg_color !== null) return 'background-color:' + this.bg_color.rgbaString;
+      // if(this.previous_color !== null && this.previous_color.rgbaString === this.bg_color.rgbaString)
+      //     return;
+      if (this.bg_color !== null) {
+        // this.previous_color = this.bg_color;
+        // if(this.messageSender && this.is_hosting === true)
+        // {
+        //     var sender = this.messageSender;
+        //     sender({
+        //         message:this.bg_color,
+        //         head: "System",
+        //         type:2,
+        //         timestamp:'now',
+        //         origin:0
+        //     });
+        // }
+        //     else
+        //         console.log('cant send coor update ');
+        return 'background-color:' + this.bg_color.rgbaString;
+      }
     }
   },
   components: {
@@ -82384,54 +82414,82 @@ var render = function() {
                 )
               : _vm._e(),
             _vm._v(" "),
-            _c(
-              "v-stage",
-              {
-                directives: [
-                  {
-                    name: "show",
-                    rawName: "v-show",
-                    value: _vm.Draw.visible,
-                    expression: "Draw.visible"
-                  }
-                ],
-                ref: "stage",
-                staticStyle: { border: "thin solid green", height: "700px" },
-                style: _vm.getBackgroundColor(),
-                attrs: { config: _vm.configKonva },
-                on: {
-                  mousedown: _vm.listenForAfterMouseDownEvent,
-                  mousemove: _vm.listenForAfterMouseMoveEvent,
-                  mouseup: _vm.listenForAfterMouseUpEvent
-                }
-              },
-              [
-                _c(
-                  "v-layer",
-                  {
-                    ref: "mainLayer",
-                    staticStyle: { border: "thin solid red", margin: "10px" }
-                  },
+            _vm.is_hosting
+              ? _c(
+                  "div",
+                  {},
                   [
                     _c(
-                      "v-shapes",
-                      _vm._b(
-                        { on: { "image-transformer": _vm.doImageTranformer } },
-                        "v-shapes",
-                        _vm.all,
-                        false
-                      )
-                    ),
-                    _vm._v(" "),
-                    _c("v-transformer", { ref: "vtransfomer" })
+                      "v-stage",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.Draw.visible,
+                            expression: "Draw.visible"
+                          }
+                        ],
+                        ref: "stage",
+                        staticStyle: {
+                          border: "thin solid green",
+                          height: "700px"
+                        },
+                        style: _vm.getBackgroundColor(),
+                        attrs: { config: _vm.configKonva },
+                        on: {
+                          mousedown: _vm.listenForAfterMouseDownEvent,
+                          mousemove: _vm.listenForAfterMouseMoveEvent,
+                          mouseup: _vm.listenForAfterMouseUpEvent
+                        }
+                      },
+                      [
+                        _c(
+                          "v-layer",
+                          {
+                            ref: "mainLayer",
+                            staticStyle: {
+                              border: "thin solid red",
+                              margin: "10px"
+                            }
+                          },
+                          [
+                            _c(
+                              "v-shapes",
+                              _vm._b(
+                                {
+                                  on: {
+                                    "image-transformer": _vm.doImageTranformer
+                                  }
+                                },
+                                "v-shapes",
+                                _vm.all,
+                                false
+                              )
+                            ),
+                            _vm._v(" "),
+                            _c("v-transformer", { ref: "vtransfomer" })
+                          ],
+                          1
+                        )
+                      ],
+                      1
+                    )
                   ],
                   1
                 )
-              ],
-              1
-            )
-          ],
-          1
+              : _c("div", [
+                  _c("canvas", {
+                    key: "k" + 1,
+                    staticStyle: { border: "thin solid green" },
+                    attrs: {
+                      id: "limitCanvas",
+                      width: _vm.configKonva.width - 40,
+                      height: _vm.configKonva.height
+                    }
+                  })
+                ])
+          ]
         )
       ])
     ],
@@ -95816,7 +95874,7 @@ var App = new Vue({
       loading_text: null
     },
     SystemLog: [],
-    is_hosting: !window.type,
+    is_hosting: window.type == 0,
     host_type: window.type,
     Chat: {
       message: null,
@@ -95846,7 +95904,7 @@ var App = new Vue({
       }
     },
     canvasUpdate: function canvasUpdate(message) {
-      this.Connection.sendMessage(message, this.showMessage);
+      if (this.Connection !== null) this.Connection.sendMessage(message, this.showMessage);
     },
     sendChat: function sendChat() {
       if (this.chat_message === "" || this.chat_message === null) return;else {
@@ -95862,23 +95920,42 @@ var App = new Vue({
     showMessage: function showMessage(message) {
       var _this = this;
 
-      if (message.type == 0) this.messages.push(message);else if (message.type == 1) {
+      if (message.type == 0) this.messages.push(message);else if (message.type == 1 && this.is_hosting === false) {
         var image = new window.Image();
         image.src = message.message;
+        console.log('context of limite canvas ', document.querySelector('#limitCanvas'));
+        var canvas = document.querySelector('#limitCanvas');
+        var ctx = canvas.getContext('2d'); // ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // ctx.fillStyle = this.colorPicker.current;
+        // ctx.fillRect(0,0,canvas.width, canvas.height);
 
         image.onload = function () {
-          _this.file_sharing.image = {
-            image: image,
-            width: 500,
-            height: 700,
-            pages: [],
-            current_page: 0,
-            num_pages: 1,
-            type: 1
-          };
+          ctx.drawImage(image, 0, 0);
+          ctx.fillStyle = _this.colorPicker.current;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(image, 0, 0);
 
           _this.closeLoader();
         };
+      } else if (message.type === 2 && this.is_hosting === false) {
+        var color = "rgba(" + this.doRgbaString(message.message._rgba) + ")";
+        var canvas = document.querySelector('#limitCanvas');
+        var ctx = canvas.getContext('2d');
+        var current_image = canvas.toDataURL('image/png');
+        console.log('current image ', current_image); // ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        var image = new window.Image();
+        image.src = current_image;
+
+        image.onload = function () {
+          ctx.drawImage(image, 0, 0);
+        };
+
+        this.colorPicker.current = color;
       } else {
         console.log('uknown message type ', message);
         this.logSystem({
@@ -96105,6 +96182,16 @@ var App = new Vue({
     notifyDonePicker: function notifyDonePicker(color) {
       console.log('Done picker color to changed to ', color.rgbaString, 'from ', this.colorPicker.current.rgbaString);
       this.colorPicker.current = color;
+
+      if (this.Connection !== null && this.is_hosting) {
+        this.Connection.sendMessage({
+          message: this.colorPicker.current,
+          head: "System",
+          type: 2,
+          timestamp: 'now',
+          origin: 0
+        }, null);
+      }
     },
     setBackgroundColor: function setBackgroundColor() {
       return 'background-color: ' + this.colorPicker.current.rgbaString;
@@ -96137,6 +96224,16 @@ var App = new Vue({
       if (origin) {
         return 'float-right';
       } else return 'float-left';
+    },
+    doRgbaString: function doRgbaString(color) {
+      if (color.indexOf('#') === 0) return color;
+      var rgbaString = '';
+
+      for (var i = 0; i < color.length; i++) {
+        if (i === 0) rgbaString = color[i];else rgbaString = rgbaString + ',' + color[i];
+      }
+
+      return rgbaString;
     }
   },
   components: {

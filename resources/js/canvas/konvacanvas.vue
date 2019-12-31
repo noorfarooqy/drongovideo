@@ -106,7 +106,8 @@
                         style="position: absolute;font-size: 16px;top: 100px;right: 25px;cursor: pointer;">Close
                         video</button>
                 </div>
-                <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px"
+                <div class="" v-if="is_hosting">
+                    <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px"
                     :style="getBackgroundColor()"
                     ref="stage" @mousedown="listenForAfterMouseDownEvent" @mousemove="listenForAfterMouseMoveEvent"
                     @mouseup="listenForAfterMouseUpEvent">
@@ -120,6 +121,12 @@
                     </v-layer>
 
                 </v-stage>
+                </div>
+                <div v-else>
+                    <canvas  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
+                    :height="configKonva.height" style="border:thin solid green" ></canvas>
+                </div>
+                
             </div>
         </div>
 
@@ -166,6 +173,7 @@
                 selectedImageName: '',
                 isLoading: false,
                 previous_hash : null,
+                previous_color:null,
 
 
             };
@@ -175,6 +183,7 @@
         },
         mounted() {
             this.configKonva.width = this.getClientWidth();
+
 
         },
         methods: {
@@ -388,6 +397,7 @@
                     this.all.file_sharing.url = image.src,
                     self.isLoading = false;  
                 }
+                this.stageUrl();
                 
             },
             nextFilePage()
@@ -418,6 +428,8 @@
                     this.all.file_sharing.url = image.src,
                     self.isLoading = false;  
                 }
+
+                    ctx.drawImage(image,0,0);
             },
 
             //modals
@@ -466,8 +478,28 @@
             },
             getBackgroundColor()
             {
+                // if(this.previous_color !== null && this.previous_color.rgbaString === this.bg_color.rgbaString)
+                //     return;
                 if(this.bg_color !== null)
+                {
+                    // this.previous_color = this.bg_color;
+                    // if(this.messageSender && this.is_hosting === true)
+                    // {
+                    //     var sender = this.messageSender;
+                        
+                    //     sender({
+                    //         message:this.bg_color,
+                    //         head: "System",
+                    //         type:2,
+                    //         timestamp:'now',
+                    //         origin:0
+                    //     });
+                            
+                    // }
+                //     else
+                //         console.log('cant send coor update ');
                     return 'background-color:'+this.bg_color.rgbaString;
+                }    
             }
 
 
