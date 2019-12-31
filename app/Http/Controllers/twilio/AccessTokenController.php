@@ -4,6 +4,7 @@ namespace App\Http\Controllers\twilio;
 
 use App\customClass\Error;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Twilio\Jwt\AccessToken;
 use Twilio\Jwt\Grants\VideoGrant;
 
