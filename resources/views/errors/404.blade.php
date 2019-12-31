@@ -7,10 +7,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-	<title>404 HTML Template by Colorlib</title>
+	<title>Interview - 100CHINAJOBS</title>
 
 	<!-- Google font -->
-	<link href="/cssfonts/montserrat.css?family=Montserrat:700,900" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
 
 	<!-- Custom stlylesheet -->
 	<link type="text/css" rel="stylesheet" href="/css/errors/style.css" />
@@ -29,10 +29,10 @@
 	<div id="notfound">
 		<div class="notfound">
 			<div class="notfound-404">
-				<h1>404</h1>
-				<h2>Page not found</h2>
+				<h1>404!</h1>
+				<h2>We can't find what your are looking for at this moment</h2>
 			</div>
-			<a href="/">Homepage</a>
+			<a href="#">Go TO Homepage</a>
 		</div>
 	</div>
 

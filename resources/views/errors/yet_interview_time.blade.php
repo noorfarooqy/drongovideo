@@ -30,7 +30,7 @@
 		<div class="notfound">
 			<div class="notfound-404">
 				<h1>Oops!</h1>
-				<h2>We could not find the teacher information regarding this interview</h2>
+				<h2>Its not yet time for the interview</h2>
 			</div>
 			<a href="#">Go TO Homepage</a>
 		</div>
