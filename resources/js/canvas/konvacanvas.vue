@@ -17,56 +17,56 @@
 
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav mr-auto">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#" @click.prevent="writeText">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="writeText" >
                                     <img src="/editor_icons/font.svg" alt="Add Text" title="Add text" height="30px"
                                         style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">
+                            <li class="nav-item active" :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
                                     <img src="/editor_icons/bold.svg" alt="Bold text" title="Bold text" height="30px"
                                         style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
                                     <img src="/editor_icons/italic.svg" alt="Italic Text" title="Italic text "
                                         height="30px" style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
                                     <img src="/editor_icons/underline.svg" alt="Underline" title="Underline text"
                                         height="30px" style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
                                     <img src="/editor_icons/full-moon.svg" alt="Circle" title="Circle" height="30px"
                                         style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#" @click.prevent="DrawRectangle">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="DrawRectangle">
                                     <img src="/editor_icons/ratio.svg" alt="Rectangle" title="Ractangle" height="30px"
                                         style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#" @click.prevent="openImageUploader()">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="openImageUploader()">
                                     <img src="/editor_icons/photo-camera.svg" alt="Photo" height="30px"
                                         style="border:thin solid gray; padding:3px" title="Photo camera" />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#" @click.prevent="openImageUploader(false)">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="openImageUploader(false)">
                                     <img src="/editor_icons/video-player.svg" alt="Video" height="30px"
                                         style="border:thin solid gray; padding:3px" title="Video " />
                                 </a>
                             </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
                                     <img src="/editor_icons/eraser.svg" alt="Erasor" height="30px"
                                         style="border:thin solid gray; padding:3px" title="Eraser" />
                                 </a>
@@ -536,3 +536,8 @@
     }
 
 </script>
+<style >
+.not-allowed {
+    cursor: not-allowed;
+}
+</style>

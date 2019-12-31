@@ -146,46 +146,11 @@ var App = new Vue({
                 this.messages.push(message);
             else if(message.type == 1 && this.is_hosting === false)
             {
-                var image = new window.Image();
-                image.src =message.message;
-
-                console.log('context of limite canvas ',document.querySelector('#limitCanvas'));
-                var canvas =document.querySelector('#limitCanvas');
-                var ctx  = canvas.getContext('2d');
-                // ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.clearRect(0, 0,canvas.width, canvas.height);
-                // ctx.fillStyle = this.colorPicker.current;
-                // ctx.fillRect(0,0,canvas.width, canvas.height);
-
-                image.onload =() => {
-                    
-                    ctx.drawImage(image,0,0);
-                    ctx.fillStyle = this.colorPicker.current;
-                     ctx.fillRect(0,0,canvas.width, canvas.height);
-
-                    ctx.drawImage(image,0,0);
-                    
-                    this.closeLoader();
-                }
+                this.updateCanvasImage(message);
             }
             else if(message.type === 2 && this.is_hosting === false)
             {
-                var color = "rgba("+this.doRgbaString(message.message._rgba)+")";
-                var canvas =document.querySelector('#limitCanvas');
-                var ctx  = canvas.getContext('2d');
-                var current_image = canvas.toDataURL('image/png');
-                console.log('current image ',current_image);
-                // ctx.setTransform(1, 0, 0, 1, 0, 0);
-                ctx.clearRect(0, 0,canvas.width, canvas.height);
-                ctx.fillStyle = color;
-                ctx.fillRect(0,0,canvas.width, canvas.height);
-                var image = new window.Image();
-                image.src =current_image;
-                image.onload =() => {
-                    ctx.drawImage(image,0,0);
-                }
-                
-                this.colorPicker.current = color;
+                this.updateCanvasBackground(message);
             }
             else
             {
@@ -322,6 +287,49 @@ var App = new Vue({
             this.Server.setRequest(formdata);
             this.Server.serverRequest('/api/event/upload/file',this.fileLoaded, this.showErrorModal);
             
+        },
+        updateCanvasImage(message)
+        {
+            var image = new window.Image();
+            image.src =message.message;
+
+            console.log('context of limite canvas ',document.querySelector('#limitCanvas'));
+            var canvas =document.querySelector('#limitCanvas');
+            var ctx  = canvas.getContext('2d');
+            // ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0,canvas.width, canvas.height);
+            // ctx.fillStyle = this.colorPicker.current;
+            // ctx.fillRect(0,0,canvas.width, canvas.height);
+
+            image.onload =() => {
+                
+                ctx.drawImage(image,0,0);
+                ctx.fillStyle = this.colorPicker.current;
+                    ctx.fillRect(0,0,canvas.width, canvas.height);
+
+                ctx.drawImage(image,0,0);
+                
+                this.closeLoader();
+            }
+        },
+        updateCanvasBackground()
+        {
+            var color = "rgba("+this.doRgbaString(message.message._rgba)+")";
+            var canvas =document.querySelector('#limitCanvas');
+            var ctx  = canvas.getContext('2d');
+            var current_image = canvas.toDataURL('image/png');
+            console.log('current image ',current_image);
+            // ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0,canvas.width, canvas.height);
+            ctx.fillStyle = color;
+            ctx.fillRect(0,0,canvas.width, canvas.height);
+            var image = new window.Image();
+            image.src =current_image;
+            image.onload =() => {
+                ctx.drawImage(image,0,0);
+            }
+            
+            this.colorPicker.current = color;
         },
         fileLoaded(data)
         {

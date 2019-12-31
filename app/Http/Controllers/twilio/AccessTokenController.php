@@ -6,6 +6,7 @@ use App\customClass\Error;
 use App\Http\Controllers\Controller;
 use Twilio\Jwt\AccessToken;
 use Twilio\Jwt\Grants\VideoGrant;
+
 class AccessTokenController extends Controller
 {
     //
@@ -16,7 +17,7 @@ class AccessTokenController extends Controller
         $this->Status = new Error();
     }
 
-    public function generateAccessToken($request)
+    public function generateAccessToken(Request $request)
     {
         $token = new AccessToken(
             env('TWILIO_ACCOUNT_SID'),

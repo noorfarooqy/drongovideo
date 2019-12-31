@@ -85,7 +85,8 @@
                                                 </li>
 
                                                 <li class="page-item ml-3" v-if="is_hosting">
-                                                    <a href="" class="nav-link">
+                                                    <a href="" class="nav-link" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Vivamus
+                                                    sagittis lacus vel augue laoreet rutrum faucibus." @click.prevent="">
                                                         <img src="/images/switch.svg" alt="You are not controlling" height="28px" >
                                                         Give out 
                                                     </a>
@@ -314,6 +315,10 @@
             window.user_id = "{{$school_info->id}}";
             window.type = parseInt ("{{$isteacher}}") == 1
         @endif
+
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
     </script>
 <script src="/fabric/fabric.js"></script>
 <script src="/js/mainvue.js"></script>
