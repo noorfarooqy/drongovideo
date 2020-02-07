@@ -17096,6 +17096,7 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {},
   mounted: function mounted() {
     this.configKonva.width = this.getClientWidth();
+    this.videoSharing = this.video_sharing;
   },
   methods: {
     getClientWidth: function getClientWidth() {
@@ -17222,6 +17223,19 @@ __webpack_require__.r(__webpack_exports__);
         src: null
       };
       this.Draw.visible = false;
+      console.log('new hash ', this.previous_hash);
+
+      if (this.messageSender) {
+        var sender = this.messageSender;
+        var self = this;
+        sender({
+          message: this.videoSharing,
+          head: "System",
+          type: 3,
+          timestamp: 'now',
+          origin: 0
+        });
+      } else console.log('sender is not set ');
     },
     renderFile: function renderFile(input, type) {
       var reader = new FileReader();
@@ -17266,6 +17280,31 @@ __webpack_require__.r(__webpack_exports__);
     doImageTranformer: function doImageTranformer(e) {
       this.selectedImageName = e.target.name();
       this.updateTransformer(e);
+    },
+    updatePaused: function updatePaused(event, type) {
+      console.log('event type ', type, ' event ', event);
+
+      if (type === 2) {
+        this.videoSharing.playing = true;
+        this.videoSharing.current_time = event.timeStamp;
+        this.sendMessage(this.videoSharing, 4);
+      } else if (type === 3) {
+        this.videoSharing.playing = false, this.videoSharing.current_time = event.timeStamp;
+        this.sendMessage(this.videoSharing, 5);
+      }
+    },
+    sendMessage: function sendMessage(message, type) {
+      if (this.messageSender) {
+        var sender = this.messageSender;
+        var self = this;
+        sender({
+          message: message,
+          head: "System",
+          type: type,
+          timestamp: 'now',
+          origin: 0
+        });
+      } else console.log('sender is not set ');
     },
     //file functions
     previousFilePage: function previousFilePage() {
@@ -17404,8 +17443,12 @@ __webpack_require__.r(__webpack_exports__);
     errormodal: _vuecomponents_errormodal_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     vFileViewer: _fileviewer_vue__WEBPACK_IMPORTED_MODULE_3__["default"]
   },
-  props: ["file_sharing", "bg_color", 'messageSender', 'is_hosting'],
+  props: ["file_sharing", "bg_color", 'messageSender', 'is_hosting', 'video_sharing'],
   watch: {
+    video_sharing: function video_sharing(new_value) {
+      console.log('created video ', new_value);
+      this.videoSharing = new_value;
+    },
     file_sharing: function file_sharing() {
       console.log('its somewhere after me');
 
@@ -83214,7 +83257,18 @@ var render = function() {
                     _c("video", {
                       staticClass: "videoSharing",
                       staticStyle: { height: "inherit", width: "inherit" },
-                      attrs: { src: _vm.videoSharing.src, controls: "" }
+                      attrs: { src: _vm.videoSharing.src, controls: "" },
+                      on: {
+                        canplay: function($event) {
+                          return _vm.updatePaused($event, 1)
+                        },
+                        playing: function($event) {
+                          return _vm.updatePaused($event, 2)
+                        },
+                        pause: function($event) {
+                          return _vm.updatePaused($event, 3)
+                        }
+                      }
                     }),
                     _vm._v(" "),
                     _c(
@@ -96639,7 +96693,13 @@ var App = new Vue({
       timestamp: null
     },
     chat_message: null,
-    messages: []
+    messages: [],
+    video_sharing: {
+      current_time: null,
+      playing: false,
+      src: null,
+      visible: false
+    }
   },
   mounted: function mounted() {
     // alert('ready');
@@ -96677,6 +96737,10 @@ var App = new Vue({
         this.updateCanvasImage(message);
       } else if (message.type === 2 && this.is_hosting === false) {
         this.updateCanvasBackground(message);
+      } else if (message.type === 3 && this.is_hosting === false) {
+        this.updateVideoPlaying(message.message);
+      } else if (message.type === 4 && this.is_hosting === false) {
+        this.updateVideoPlaying(message.message);
       } else {
         console.log('uknown message type ', message);
         this.logSystem({
@@ -96686,6 +96750,12 @@ var App = new Vue({
           timestamp: this.Connection.getTodayDate()
         });
       }
+    },
+    updateVideoPlaying: function updateVideoPlaying(message) {
+      var update = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      console.log('updating video ', message);
+      if (!update) this.video_sharing.src = message.src, this.video_sharing.current_time = message.current_time, this.video_sharing.playing = message.playing;
+      this.video_sharing.visible = true;
     },
     triggerFileSharing: function triggerFileSharing() {
       this.file_sharing = {
@@ -96709,8 +96779,7 @@ var App = new Vue({
       this.Server.serverRequest('/api/event/gettoken', this.eventData, this.showErrorModal);
     },
     eventData: function eventData(data) {
-      console.log('data ', data);
-      this.StartConnection(data.token, 'noor_room');
+      console.log('data ', data); // this.StartConnection(data.token, 'noor_room');
     },
     StartConnection: function StartConnection(token, room_name) {
       this.Connection.StartConnection(token, room_name, this.ConnectionCallBack, this.showMessage);
@@ -96821,7 +96890,7 @@ var App = new Vue({
         _this2.closeLoader();
       };
     },
-    updateCanvasBackground: function updateCanvasBackground() {
+    updateCanvasBackground: function updateCanvasBackground(message) {
       var color = "rgba(" + this.doRgbaString(message.message._rgba) + ")";
       var canvas = document.querySelector('#limitCanvas');
       var ctx = canvas.getContext('2d');
@@ -96987,6 +97056,7 @@ var App = new Vue({
       } else return 'float-left';
     },
     doRgbaString: function doRgbaString(color) {
+      console.log('doing rgba sring ', color);
       if (color.indexOf('#') === 0) return color;
       var rgbaString = '';
 

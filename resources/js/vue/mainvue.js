@@ -85,6 +85,13 @@ var App = new Vue({
         },
         chat_message:null,
         messages: [],
+        video_sharing: {
+            current_time:null,
+            playing:false,
+            src:null,
+            visible:false
+
+        }
         
 
 
@@ -152,6 +159,14 @@ var App = new Vue({
             {
                 this.updateCanvasBackground(message);
             }
+            else if(message.type === 3 && this.is_hosting === false)
+            {
+                this.updateVideoPlaying(message.message);
+            }
+            else if(message.type === 4 && this.is_hosting === false)
+            {
+                this.updateVideoPlaying(message.message);
+            }
             else
             {
                 console.log('uknown message type ',message);
@@ -162,6 +177,15 @@ var App = new Vue({
                     timestamp: this.Connection.getTodayDate()
                 })
             }
+        },
+        updateVideoPlaying(message, update=false)
+        {
+            console.log('updating video ',message);
+            if(!update)
+                this.video_sharing.src = message.src,
+            this.video_sharing.current_time = message.current_time,
+            this.video_sharing.playing = message.playing;
+            this.video_sharing.visible = true;
         },
         triggerFileSharing()
         {
@@ -192,7 +216,7 @@ var App = new Vue({
         eventData(data)
         {
             console.log('data ',data);
-            this.StartConnection(data.token, 'noor_room');
+            // this.StartConnection(data.token, 'noor_room');
         },
         StartConnection(token,room_name)
         {
@@ -312,7 +336,7 @@ var App = new Vue({
                 this.closeLoader();
             }
         },
-        updateCanvasBackground()
+        updateCanvasBackground(message)
         {
             var color = "rgba("+this.doRgbaString(message.message._rgba)+")";
             var canvas =document.querySelector('#limitCanvas');
@@ -500,6 +524,7 @@ var App = new Vue({
         },
         doRgbaString(color)
         {
+            console.log('doing rgba sring ',color)
             if(color.indexOf('#') === 0)
                 return color;
             var rgbaString = '';

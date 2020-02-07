@@ -101,7 +101,7 @@
             <div class="card-body" ref="cardHW" style="height:100%; width:100%">
                 <div style="height: inherit;width: inherit;" v-if="videoSharing.visible">
                     <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;"
-                        controls></video>
+                        controls @canplay="updatePaused($event,1)" @playing="updatePaused($event,2)" @pause="updatePaused($event,3)"></video>
                     <button class="btn btn-danger" @click.prevent="closeVideoSharing"
                         style="position: absolute;font-size: 16px;top: 100px;right: 25px;cursor: pointer;">Close
                         video</button>
@@ -184,7 +184,7 @@
         mounted() {
             this.configKonva.width = this.getClientWidth();
 
-
+            this.videoSharing = this.video_sharing;
         },
         methods: {
             getClientWidth() {
@@ -323,6 +323,23 @@
                     src: null
                 }
                 this.Draw.visible = false;
+                console.log('new hash ',this.previous_hash);
+                if(this.messageSender)
+                {
+                        var sender = this.messageSender;
+                        var self = this;
+                        sender({
+                            message: this.videoSharing,
+                            head: "System",
+                            type:3,
+                            timestamp:'now',
+                            origin:0
+                        });
+                        
+                }
+                else
+                    console.log('sender is not set ');
+
             },
             renderFile(input, type) {
                 var reader = new FileReader();
@@ -366,7 +383,42 @@
                 this.updateTransformer(e);
             },
 
+            updatePaused(event, type)
+            {
+                console.log('event type ',type,' event ',event,)
+                if(type === 2)
+                {
+                    this.videoSharing.playing = true;
+                    this.videoSharing.current_time = event.timeStamp
+                    this.sendMessage(this.videoSharing,4);
+                }
+                else if(type === 3)
+                {
+                    this.videoSharing.playing = false,
+                    this.videoSharing.current_time = event.timeStamp;
+                    this.sendMessage(this.videoSharing,5);
+                }
 
+                
+            },
+            sendMessage(message, type)
+            {
+                if(this.messageSender)
+                {
+                        var sender = this.messageSender;
+                        var self = this;
+                        sender({
+                            message: message,
+                            head: "System",
+                            type:type,
+                            timestamp:'now',
+                            origin:0
+                        });
+                        
+                }
+                else
+                    console.log('sender is not set ');
+            },
             //file functions
             previousFilePage()
             {
@@ -509,8 +561,12 @@
             errormodal,
             vFileViewer: fileviewer
         },
-        props: ["file_sharing", "bg_color", 'messageSender','is_hosting'],
+        props: ["file_sharing", "bg_color", 'messageSender','is_hosting', 'video_sharing'],
         watch: {
+            video_sharing: function(new_value){
+                console.log('created video ',new_value)
+                this.videoSharing = new_value;
+            },
             file_sharing: function () {
                 console.log('its somewhere after me');
                 if(this.file_sharing.type)

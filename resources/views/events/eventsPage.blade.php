@@ -115,7 +115,7 @@
                                 {{-- <pdfjs></pdfjs> --}}
                                 <custom-canvas  :style="setBackgroundColor()" v-bind="{
                                     file_sharing: file_sharing.image, messageSender: canvasUpdate,
-                                    bg_color: colorPicker.current, is_hosting:is_hosting
+                                    bg_color: colorPicker.current, is_hosting:is_hosting, video_sharing: video_sharing
                                 }"></custom-canvas>
                             </div>
                         </div>
@@ -321,6 +321,9 @@
         })
     </script>
 <script src="/fabric/fabric.js"></script>
+@php 
+
+@endphp
 <script src="/js/mainvue.js"></script>
 <script src="/js/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
