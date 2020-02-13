@@ -1,0 +1,135 @@
+
+#privacy-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem .5rem;
+    background: #fff;
+    z-index: 1030;
+    color: #000;
+    font-size: 14px;
+    margin: 0;
+    display: none;
+    border-top: 2px solid rgb(130, 130, 130);
+  }
+  #privacy-banner p {
+    margin: 0;
+    color: #000;
+    text-align: center;
+  }
+  #privacy-banner a {
+    text-decoration: none;
+    margin: 20px auto 0 auto;
+    display: block;
+    max-width: 150px;
+  }
+  #privacy-banner a:hover {
+    text-decoration: underline;
+  }
+  #banner-learn {
+    color: #000;
+  }
+  #banner-accept {
+    padding: 7px 15px;
+    color: #fff;
+    border-radius: 5px;
+    background:#737373;
+  }
+  @media (min-width: 768px) {
+    #privacy-banner {
+      padding: 1.5rem .5rem;
+    }
+    #privacy-banner a {
+      display: inline-block;
+      margin: 0 10px;
+    }
+}
+#viewer {
+  position: absolute;
+  z-index: 9;
+  background-color: #f1f1f1;
+  text-align: center;
+  bottom: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  top: 60px;
+  left: 0px;
+  visibility: hidden;
+}
+#pdf {
+
+  position: absolute;
+  z-index: 10;
+  background-color: #f1f1f1;
+  text-align: center;
+  border: 1px solid #d3d3d3;
+  top: 50%;
+  right: 50%;
+}
+
+#mydivheader, #pdfheader {
+  padding: 10px;
+  cursor: move;
+  z-index: 10;
+  background-color: #2196F3;
+  color: #fff;
+}
+.block-event {
+  cursor: not-allowed;
+}
+
+.pptFile, .videoFile, .pdfFile {
+  height: 100%;
+  width: 70px;
+  margin-left: 10px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  padding-top: 75px;
+  text-align: center;
+}
+.pptFile {
+  background-image: url(/images/ppticon.png);
+}
+.pdfFile {
+  background-image: url(/images/pdficon.png);
+}
+.videoFile {
+  background-image: url(/images/videoicon.png);
+}
+#viewer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 60px;
+    left: 0px;
+  }
+
+#mainCanvas,  #firstImage {
+  border: thin solid gray;
+  height: 100%;
+  background: white;
+  margin: 20px;
+  overflow-y: auto;
+  z-index: 30;
+  position: absolute;
+  top: 60px;
+  left: 0px;
+}
+#secondaryCanvas {
+  height: 100%;
+  z-index: 20;
+  position: absolute;
+  top: 60px;
+  left: 0px;
+}
+.customProgressBarDiv {
+  position: fixed;
+  top:0px;
+  left:0px;
+  right:0px;
+  z-index: 40;
+  visibility: hidden;
+}

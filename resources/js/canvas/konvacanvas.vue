@@ -24,19 +24,19 @@
                                 </a>
                             </li>
                             <li class="nav-item active" :class="{'not-allowed': !is_hosting}">
-                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="textStyle(1)">
                                     <img src="/editor_icons/bold.svg" alt="Bold text" title="Bold text" height="30px"
                                         style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
                             <li class="nav-item " :class="{'not-allowed': !is_hosting}">
-                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="textStyle(2)">
                                     <img src="/editor_icons/italic.svg" alt="Italic Text" title="Italic text "
                                         height="30px" style="border:thin solid gray; padding:3px" />
                                 </a>
                             </li>
                             <li class="nav-item " :class="{'not-allowed': !is_hosting}">
-                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="textStyle(3)">
                                     <img src="/editor_icons/underline.svg" alt="Underline" title="Underline text"
                                         height="30px" style="border:thin solid gray; padding:3px" />
                                 </a>
@@ -62,6 +62,12 @@
                             <li class="nav-item " :class="{'not-allowed': !is_hosting}">
                                 <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="openImageUploader(false)">
                                     <img src="/editor_icons/video-player.svg" alt="Video" height="30px"
+                                        style="border:thin solid gray; padding:3px" title="Video " />
+                                </a>
+                            </li>
+                            <li class="nav-item " :class="{'not-allowed': !is_hosting}">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="KonvasConfig.color_picker = true">
+                                    <img src="/editor_icons/picker.png" alt="Video" height="30px"
                                         style="border:thin solid gray; padding:3px" title="Video " />
                                 </a>
                             </li>
@@ -100,27 +106,40 @@
             </div>
             <div class="card-body" ref="cardHW" style="height:100%; width:100%">
                 <div style="height: inherit;width: inherit;" v-if="videoSharing.visible">
-                    <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;"
+                    <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;" v-if="is_hosting"
                         controls @canplay="updatePaused($event,1)" @playing="updatePaused($event,2)" @pause="updatePaused($event,3)"></video>
+                    <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;" v-else
+                        controls ref="videoRemote" id="remoteVideo"></video>
                     <button class="btn btn-danger" @click.prevent="closeVideoSharing"
                         style="position: absolute;font-size: 16px;top: 100px;right: 25px;cursor: pointer;">Close
                         video</button>
                 </div>
+                
                 <div class="" v-if="is_hosting">
-                    <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px"
+                    <!-- <v-stage :config="configKonva" v-show="Draw.visible" style="border:thin solid green; height:700px"
                     :style="getBackgroundColor()"
                     ref="stage" @mousedown="listenForAfterMouseDownEvent" @mousemove="listenForAfterMouseMoveEvent"
                     @mouseup="listenForAfterMouseUpEvent">
                     <v-layer style="border:thin solid red; margin:10px" ref="mainLayer">
 
-                        <v-shapes v-bind="all" v-on:image-transformer="doImageTranformer"></v-shapes>
+                        <v-shapes v-bind="{
+                            imageConfig: all.imageConfig,Draw: Draw,
+                            text_shape: all.text_shape, file_sharing: all.file_sharing
+                            }" 
+                            v-on:image-transformer="doImageTranformer" ></v-shapes>
 
                         <v-transformer ref="vtransfomer" />
 
 
                     </v-layer>
 
-                </v-stage>
+                </v-stage> -->
+                <!-- <textcomponent v-bind="{out_configKonva: configKonva}"></textcomponent> -->
+                <vue-konvas v-bind="KonvasConfig" v-if="is_hosting" 
+                    v-on:close-color-picker="KonvasConfig.color_picker = false"
+                    v-on:completed-text-draw="KonvasConfig.draw_text = false"
+                    v-on:completed-rect-draw="KonvasConfig.draw_rect = false"
+                    v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
                 <div v-else>
                     <canvas  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
@@ -140,6 +159,9 @@
     import Error from "../classes/Error";
     import fileviewer from "./fileviewer.vue";
     import Hasher from "object-hash"
+    import textcomponent  from "../canvas/textcomponent.vue"
+
+    import VueKonvas from "../Konvas/components/Konvas.vue"; 
     export default {
         data() {
             return {
@@ -157,6 +179,7 @@
                     imageConfig: null,
                     transformerStatus: false,
                     file_sharing: null,
+                    text_shape: null,
                 },
                 shared_file:null,//local file sharing copy for paginations purpose
                 uploader: {
@@ -174,6 +197,16 @@
                 isLoading: false,
                 previous_hash : null,
                 previous_color:null,
+                KonvasConfig: {
+                    draw_circle : false,
+                    draw_rect: false,
+                    draw_text: false,
+                    draw_image:false,
+                    color_picker : false,
+                    text_bold: false,
+                    text_italic:false,
+                    text_underline: false,
+                }
 
 
             };
@@ -183,10 +216,13 @@
         },
         mounted() {
             this.configKonva.width = this.getClientWidth();
-
             this.videoSharing = this.video_sharing;
+
+            var remoteVideo = this.$refs.remoteVideo;
+            console.log('video ',remoteVideo);
         },
         methods: {
+
             getClientWidth() {
                 return this.$refs.cardHW.clientWidth;
             },
@@ -261,6 +297,40 @@
 
 
             //menu triggers
+            writeText()
+            {
+                this.all.text_shape = {
+                        x: 100,
+                        y: 100,
+                        type: 1,
+                        text: 'Add text',
+                        fontSize: 16,
+                        layer: this.$refs.mainLayer,
+                        stage: this.$refs.stage,
+                    }
+                this.KonvasConfig.draw_text = true;
+                this.Draw.isdrawing = true;
+                this.Draw.pen = 2
+            },
+            textStyle(type)
+            {
+                if(type === 1)
+                {
+                    this.KonvasConfig.text_bold =true
+                }
+                else if(type === 2)
+                    this.KonvasConfig.text_italic = true
+                else if(type === 3)
+                    this.KonvasConfig.text_underline = true
+            },
+            resetTextStyle()
+            {
+                this.KonvasConfig.text_bold = this.KonvasConfig.text_italic = false;
+            },
+            DrawRectangle()
+            {
+                this.KonvasConfig.draw_rect = true;
+            },
 
             openImageUploader(image = true) {
                 var uploader = document.createElement('input');
@@ -386,17 +456,30 @@
             updatePaused(event, type)
             {
                 console.log('event type ',type,' event ',event,)
+
+                if(type === 1)
+                {
+                    var message = this.videoSharing;
+                    message.playing = false;
+                    message.src = null;
+                    message.current_time = event.srcElement.currentTime
+                    this.sendMessage(message,4);
+                }
                 if(type === 2)
                 {
-                    this.videoSharing.playing = true;
-                    this.videoSharing.current_time = event.timeStamp
-                    this.sendMessage(this.videoSharing,4);
+                    var message = this.videoSharing;
+                    message.playing = true;
+                    message.src = null;
+                    message.current_time = event.srcElement.currentTime
+                    this.sendMessage(message,4);
                 }
                 else if(type === 3)
                 {
-                    this.videoSharing.playing = false,
-                    this.videoSharing.current_time = event.timeStamp;
-                    this.sendMessage(this.videoSharing,5);
+                    var message = this.videoSharing;
+                    message.playing = false;
+                    message.src = null;
+                    message.current_time = event.srcElement.currentTime
+                    this.sendMessage(message,5);
                 }
 
                 
@@ -515,6 +598,9 @@
             closeVideoSharing() {
                 this.resetVideoSharing();
                 this.Draw.visible = true;
+                this.sendMessage ( {
+                    target:'video'
+                },6)
             },
             trunsFormer(status) {
                 this.transformerStatus = status;
@@ -559,7 +645,9 @@
         components: {
             vShapes: shapes,
             errormodal,
-            vFileViewer: fileviewer
+            vFileViewer: fileviewer,
+            textcomponent,
+            VueKonvas
         },
         props: ["file_sharing", "bg_color", 'messageSender','is_hosting', 'video_sharing'],
         watch: {

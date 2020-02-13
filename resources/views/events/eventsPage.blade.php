@@ -117,6 +117,7 @@
                                     file_sharing: file_sharing.image, messageSender: canvasUpdate,
                                     bg_color: colorPicker.current, is_hosting:is_hosting, video_sharing: video_sharing
                                 }"></custom-canvas>
+                                {{-- <whiteboard></whiteboard> --}}
                             </div>
                         </div>
                         <div style="display:none">
@@ -299,6 +300,8 @@
 </body>
 {{-- <script src="/js/cloudinary/widgets_all.js" type="text/javascript"></script> --}}
 
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 <script src="/connections/RTCMultiConnection.min.js"></script>
 <script src="/connections/socket.io.js"></script>
 <script>
@@ -320,12 +323,19 @@
             $('[data-toggle="popover"]').popover()
         })
     </script>
+
+<link rel="stylesheet" type="text/css" href="https://www.tutorialspoint.com/themes/css/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://www.tutorialspoint.com/themes/css/slick-theme.css"/>
+
+
 <script src="/fabric/fabric.js"></script>
+
+<script type="text/javascript" src="https://www.tutorialspoint.com/themes/js/slick.min.js"></script>
+<script type="text/javascript" src="https://www.tutorialspoint.com/themes/js/fabric-min.js"></script>
+<script type="text/javascript" src="https://www.tutorialspoint.com/themes/js/FileBufferReader.min.js"></script>
 @php 
 
 @endphp
 <script src="/js/mainvue.js"></script>
-<script src="/js/jquery.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
 
 </html>

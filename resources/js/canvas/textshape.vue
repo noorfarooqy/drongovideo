@@ -1,30 +1,51 @@
 <template>
     <div>
-        <v-rect v-for="(rect, rkey) in all.configRect" v-bind:key="'r'+rkey" :config="rect">
+        <!-- <v-rect v-for="(rect, rkey) in all.configRect" v-bind:key="'r'+rkey" :config="rect">
 
-                    </v-rect>
+                    </v-rect> -->
 
-                    <v-text v-for="(text, tkey) in all.configText" v-bind:key="'t'+tkey" :config="text"
-                    @transform="transformText"/>
-                    <v-transformer ref="texttransformer" />
+        <v-text v-for="(text, tkey) in configText" v-bind:key="'t'+tkey" 
+        :config="{
+            text: text.text,
+            y: text.y,
+            x: text.x,
+            fontSize: 15
+            }"
+        @mousedown="listenForAfterMouseDownEvent"
+        @transform="transformText"/>
+        <v-transformer ref="texttransformer" />
     </div>
 </template>
 <script>
 export default {
     data() {
 
-               var all = {
-                    configRect: [],
-                    configText:[],
-                    configTextNode: [],
-                    textarea : null,
-                },
-                // selectedShapeName:null,
-                // textArea : new textarea()
+        return {
+            configText: [],
+            name: 'imageshpae',
+            text_counter: 0,
+            selectedImageName:'',
+        }
+    },
+    props : ["text_config", "texttransformer", "Draw"],
+    watch: {
+        text_config: function()
+        {
+            this.configText.push(this.text_config)
+        }
+    },
+    mounted() {
+        // this.configText.push
     },
     methods: {
 
             //drawing
+            mouseDownEvent(e)
+            {
+                console.log('mouse down event ',e);
+                this.$emit('image-tranformer', e);
+
+            },
             DrawRectangle()
             {
                 // this.all.configRect.push(shapeConfigs.data.rect);
@@ -220,26 +241,27 @@ export default {
                 this.updateTransformer(e);
 
             },
-            listenForAfterMouseMoveEvent(event)
-            {
+            // listenForAfterMouseMoveEvent(event)
+            // {
                 
-                if(this.Draw.isdrawing && this.Draw.pen.on)
-                {
-                    var pos = this.$refs.stage.getStage().getPointerPosition();
-                    this.Draw.pen.object.width =  pos.x - this.Draw.pen.pos_x;
-                    this.Draw.pen.object.height =  pos.y - this.Draw.pen.pos_y;
+            //     if(this.Draw.isdrawing && this.Draw.pen.on)
+            //     {
+            //         var pos = this.$refs.stage.getStage().getPointerPosition();
+            //         this.Draw.pen.object.width =  pos.x - this.Draw.pen.pos_x;
+            //         this.Draw.pen.object.height =  pos.y - this.Draw.pen.pos_y;
 
-                }
-            },
-            listenForAfterMouseUpEvent(event)
-            {
-                if(this.Draw.isdrawing && this.Draw.pen.on)
-                {
-                    console.log('reseting ',this.Draw);
-                    this.resetDraw();
+            //     }
+            // },
+            // listenForAfterMouseUpEvent(event)
+            // {
+            //     if(this.Draw.isdrawing && this.Draw.pen.on)
+            //     {
+            //         console.log('reseting ',this.Draw);
+            //         this.resetDraw();
 
-                }
-            }
-    }
+            //     }
+            // }
+    },
+    
 }
 </script>

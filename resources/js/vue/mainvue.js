@@ -14,6 +14,7 @@ import errormodal from "../vuecomponents/errormodal.vue"
 import loader from "../vuecomponents/loader.vue"
 // import pdfjs from "../pdfcomponent/pdfjs.vue";
 import konvacanvas from "../canvas/konvacanvas.vue";
+// import whiteboard from "../whiteboard/whiteboard.vue";
 
 // const VideoGrant = AccessToken.VideoGrant;
 var App = new Vue({
@@ -89,7 +90,8 @@ var App = new Vue({
             current_time:null,
             playing:false,
             src:null,
-            visible:false
+            visible:false,
+            update: false,
 
         }
         
@@ -165,7 +167,18 @@ var App = new Vue({
             }
             else if(message.type === 4 && this.is_hosting === false)
             {
-                this.updateVideoPlaying(message.message);
+                this.updateVideoPlaying(message.message, true);
+            }
+            else if(message.type === 5 && this.is_hosting === false)
+            {
+                this.updateVideoPlaying(message.message, true);
+            }
+            else if(message.type === 6 && this.is_hosting === false)
+            {
+                this.video_sharing.src = null;
+                this.video_sharing.visible = false;
+                this.video_sharing.playing = false;
+                this.video_sharing.current_time = 0
             }
             else
             {
@@ -182,10 +195,23 @@ var App = new Vue({
         {
             console.log('updating video ',message);
             if(!update)
-                this.video_sharing.src = message.src,
-            this.video_sharing.current_time = message.current_time,
-            this.video_sharing.playing = message.playing;
-            this.video_sharing.visible = true;
+            {
+                this.video_sharing.src = message.src
+                this.video_sharing.current_time = message.current_time,
+                this.video_sharing.playing = message.playing;
+                this.video_sharing.visible = true;
+            }
+            else
+            {
+                var remoteVideo = document.querySelector('video#remoteVideo');
+                console.log('remotVideo ',remoteVideo);
+                remoteVideo.currentTime = message.current_time;
+                if(message.playing)
+                    remoteVideo.play();
+                else
+                    remoteVideo.pause();
+            }
+            
         },
         triggerFileSharing()
         {
