@@ -42,7 +42,7 @@
                                 </a>
                             </li>
                             <li class="nav-item " :class="{'not-allowed': !is_hosting}">
-                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="DrawCircle">
                                     <img src="/editor_icons/full-moon.svg" alt="Circle" title="Circle" height="30px"
                                         style="border:thin solid gray; padding:3px" />
                                 </a>
@@ -139,6 +139,8 @@
                     v-on:close-color-picker="KonvasConfig.color_picker = false"
                     v-on:completed-text-draw="KonvasConfig.draw_text = false"
                     v-on:completed-rect-draw="KonvasConfig.draw_rect = false"
+                    v-on:completed-circle-draw="KonvasConfig.draw_circle = false"
+                    v-on:completed-image-draw="resetImageDraw()"
                     v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
                 <div v-else>
@@ -201,7 +203,12 @@
                     draw_circle : false,
                     draw_rect: false,
                     draw_text: false,
-                    draw_image:false,
+                    draw_image:{
+                        visible: false,
+                        src: null,
+                        is_normal_image: true,//images that are not from pdf file or ppt file are normal images
+                    },
+                    image_status : false,
                     color_picker : false,
                     text_bold: false,
                     text_italic:false,
@@ -331,6 +338,10 @@
             {
                 this.KonvasConfig.draw_rect = true;
             },
+            DrawCircle()
+            {
+                this.KonvasConfig.draw_circle = true;
+            },
 
             openImageUploader(image = true) {
                 var uploader = document.createElement('input');
@@ -377,6 +388,9 @@
                         layer: this.$refs.mainLayer,
                         stage: this.$refs.stage,
                     }
+                    this.KonvasConfig.draw_image.src = image;
+                    this.KonvasConfig.draw_image.visible = true
+                    this.KonvasConfig.image_status = true
                 }
                 this.uploader = {
                     focus: false,
@@ -503,6 +517,12 @@
                     console.log('sender is not set ');
             },
             //file functions
+            resetImageDraw()
+            {
+                this.KonvasConfig.draw_image.visible = false;
+                this.KonvasConfig.draw_image.src = null;
+                this.KonvasConfig.draw_image.is_normal_image =  true
+            },
             previousFilePage()
             {
 

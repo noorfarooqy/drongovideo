@@ -16799,8 +16799,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var width = window.innerWidth;
-var height = window.innerHeight;
+var width = window.width;
+var height = 700;
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -16827,9 +16827,12 @@ var height = window.innerHeight;
     vueimage: _image_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
     colorPicker: _colorPicker_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
-  props: ["color_picker", "draw_text", "text_bold", "text_italic", "text_underline", "draw_rect"],
+  props: ["color_picker", "draw_text", "text_bold", "text_italic", "text_underline", "draw_rect", "draw_circle", "draw_image", "image_status"],
   created: function created() {},
-  mounted: function mounted() {},
+  mounted: function mounted() {
+    this.stageSize.width = this.$refs.containerCanvas.clientWidth;
+    this.initKeyEvents();
+  },
   watch: {
     color_picker: function color_picker() {
       this.colorPickerOpen = this.color_picker;
@@ -16850,7 +16853,14 @@ var height = window.innerHeight;
       this.$emit('reset-text-style');
     },
     draw_rect: function draw_rect() {
-      this.createRect();
+      if (this.draw_rect === true) this.createRect();
+    },
+    draw_circle: function draw_circle() {
+      if (this.draw_circle === true) this.createCircle();
+    },
+    image_status: function image_status() {
+      console.log('draw image changed ', this.draw_image);
+      if (this.draw_image.visible === true && this.draw_image.src !== null) this.createImage(this.draw_image.src.src);
     }
   },
   methods: {
@@ -16893,8 +16903,6 @@ var height = window.innerHeight;
         y: 100,
         radius: 70,
         fill: "red",
-        stroke: "black",
-        strokeWidth: 4,
         scaleX: 1,
         scaleY: 1,
         draggable: true,
@@ -16902,11 +16910,16 @@ var height = window.innerHeight;
         name: this.circle_list.length + "circle" + parseInt(Math.random() * 100, 10),
         shapetype: 2
       });
+      this.$emit('completed-circle-draw');
     },
     createImage: function createImage() {
       var _this = this;
 
       var src = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "https://konvajs.org/assets/yoda.jpg";
+      var dimensions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+        width: 106,
+        height: 118
+      };
       var yoda = new window.Image();
       yoda.src = src;
 
@@ -16915,14 +16928,16 @@ var height = window.innerHeight;
           x: 50,
           y: 50,
           image: yoda,
-          width: 106,
-          height: 118,
+          width: dimensions.width,
+          height: dimensions.height,
           draggable: true,
           id: _this.image_list.length + parseInt(Math.random() * 100, 10),
           name: _this.image_list.length + "image" + parseInt(Math.random() * 100, 10),
           shapetype: 3
         });
       };
+
+      this.$emit('completed-image-draw');
     },
     openColorPicker: function openColorPicker() {
       this.colorPickerOpen = false;
@@ -16938,15 +16953,55 @@ var height = window.innerHeight;
       // also stage will be in focus on its click
 
       container.focus();
+      var self = this;
       container.addEventListener("keydown", function (e) {
         console.log("keywodn event ", e);
+        self.checkToDeleteShape(e);
       });
       container.addEventListener("keypress", function (e) {
         console.log("keywodn event ", e);
+        self.checkToDeleteShape(e);
       });
     },
-    keydownEvent: function keydownEvent(e) {
-      console.log("kehdown ", e.keyCode);
+    checkToDeleteShape: function checkToDeleteShape(e) {
+      var _this2 = this;
+
+      if (e.keyCode === 8 || e.keyCode === 46) {
+        if (this.selectedShapeName.length > 0 && this.selectedShapeType !== null) {
+          switch (this.selectedShapeType) {
+            case 0:
+              var elem = this.text_list.find(function (r) {
+                return r.name === _this2.selectedShapeName;
+              });
+              console.log('found eleme to delete ', elem);
+              this.deleteShape();
+              var new_list = [];
+              this.text_list.forEach(function (element) {
+                console.log('checking {element.name !== this.selectedShapeName} ', element.name !== _this2.selectedShapeName);
+
+                if (element.name !== _this2.selectedShapeName) {
+                  new_list.push(element);
+                }
+              });
+              this.text_list = new_list;
+              break;
+
+            default:
+              console.log('unselected shape ');
+          }
+        } else console.log('have you selected anything?');
+      }
+    },
+    deleteShape: function deleteShape() {
+      var transformerNode = this.$refs.transformer.getNode();
+      var stage = transformerNode.getStage();
+      var selectedShapeName = this.selectedShapeName;
+      var selectedNode = stage.findOne("." + selectedShapeName);
+      console.log('seletec node to delete ', selectedNode);
+
+      if (selectedNode !== undefined) {
+        this.selectedNode.remove();
+      }
     },
     handleStageMouseDown: function handleStageMouseDown(e) {
       // clear stage
@@ -17004,18 +17059,28 @@ var height = window.innerHeight;
       transformerNode.getLayer().batchDraw();
     },
     changeShapeColor: function changeShapeColor(color) {
+      var _this3 = this;
+
       console.log('change-shape-color ', color);
 
       switch (this.selectedShapeType) {
         case 0:
           this.text_list.forEach(function (text) {
-            text.fill = color;
+            if (text.name === _this3.selectedShapeName) text.fill = color;
           });
+          break;
 
         case 1:
           this.rect_list.forEach(function (rect) {
-            rect.fill = color;
+            if (rect.name === _this3.selectedShapeName) rect.fill = color;
           });
+          break;
+
+        case 2:
+          this.circle_list.forEach(function (circle) {
+            if (circle.name === _this3.selectedShapeName) circle.fill = color;
+          });
+          break;
       }
     },
     setTextStyle: function setTextStyle(style) {
@@ -17744,6 +17809,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -17791,7 +17858,13 @@ __webpack_require__.r(__webpack_exports__);
         draw_circle: false,
         draw_rect: false,
         draw_text: false,
-        draw_image: false,
+        draw_image: {
+          visible: false,
+          src: null,
+          is_normal_image: true //images that are not from pdf file or ppt file are normal images
+
+        },
+        image_status: false,
         color_picker: false,
         text_bold: false,
         text_italic: false,
@@ -17897,6 +17970,9 @@ __webpack_require__.r(__webpack_exports__);
     DrawRectangle: function DrawRectangle() {
       this.KonvasConfig.draw_rect = true;
     },
+    DrawCircle: function DrawCircle() {
+      this.KonvasConfig.draw_circle = true;
+    },
     openImageUploader: function openImageUploader() {
       var image = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
       var uploader = document.createElement('input');
@@ -17940,6 +18016,9 @@ __webpack_require__.r(__webpack_exports__);
           layer: _this.$refs.mainLayer,
           stage: _this.$refs.stage
         };
+        _this.KonvasConfig.draw_image.src = image;
+        _this.KonvasConfig.draw_image.visible = true;
+        _this.KonvasConfig.image_status = true;
       };
 
       this.uploader = {
@@ -18053,6 +18132,11 @@ __webpack_require__.r(__webpack_exports__);
       } else console.log('sender is not set ');
     },
     //file functions
+    resetImageDraw: function resetImageDraw() {
+      this.KonvasConfig.draw_image.visible = false;
+      this.KonvasConfig.draw_image.src = null;
+      this.KonvasConfig.draw_image.is_normal_image = true;
+    },
     previousFilePage: function previousFilePage() {
       var _this2 = this;
 
@@ -83948,7 +84032,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "div",
-    { attrs: { id: "container" }, on: { keydown: _vm.keydownEvent } },
+    { ref: "containerCanvas", attrs: { id: "container" } },
     [
       _vm.colorPickerOpen
         ? _c(
@@ -84490,7 +84574,13 @@ var render = function() {
                           {
                             staticClass: "nav-link ",
                             class: { disabled: !_vm.is_hosting },
-                            attrs: { href: "#" }
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                return _vm.DrawCircle($event)
+                              }
+                            }
                           },
                           [
                             _c("img", {
@@ -84901,6 +84991,12 @@ var render = function() {
                                 },
                                 "completed-rect-draw": function($event) {
                                   _vm.KonvasConfig.draw_rect = false
+                                },
+                                "completed-circle-draw": function($event) {
+                                  _vm.KonvasConfig.draw_circle = false
+                                },
+                                "completed-image-draw": function($event) {
+                                  return _vm.resetImageDraw()
                                 },
                                 "reset-text-style": _vm.resetTextStyle
                               }

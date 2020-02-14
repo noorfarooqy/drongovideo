@@ -1,9 +1,9 @@
 <template>
-    <div v-on:keydown="keydownEvent" id="container">
-        <color-picker v-if="colorPickerOpen" v-bind="{visible: colorPickerOpen}" 
-        v-on:change-shape-color="changeShapeColor"  v-on:close-color-picker="closeColorPicker()" ></color-picker>
+    <div id="container" ref="containerCanvas">
+        <color-picker v-if="colorPickerOpen" v-bind="{visible: colorPickerOpen}"
+            v-on:change-shape-color="changeShapeColor" v-on:close-color-picker="closeColorPicker()"></color-picker>
         <v-stage :config="stageSize" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
-            <v-layer ref="layer" v-on:draw-layer="drawLayer" >
+            <v-layer ref="layer" v-on:draw-layer="drawLayer">
                 <vuetext v-bind="{text_list: text_list}"></vuetext>
                 <vuerect v-bind="{rect_list: rect_list}"></vuerect>
                 <vuecircle v-bind="{circle_list: circle_list}"></vuecircle>
@@ -20,8 +20,8 @@
     import vuecircle from "./circle.vue";
     import vueimage from "./image.vue";
     import colorPicker from "./colorPicker.vue";
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window.width;
+    const height = 700;
     export default {
         data() {
             return {
@@ -49,46 +49,57 @@
             colorPicker
         },
         props: [
-          "color_picker", "draw_text", "text_bold", "text_italic", "text_underline",
-          "draw_rect"
-          ],
-        created() {
-        },
+            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline",
+            "draw_rect", "draw_circle", "draw_image", "image_status"
+        ],
+        created() {},
         mounted() {
-          
-          
+            this.stageSize.width = this.$refs.containerCanvas.clientWidth;
+            this.initKeyEvents()
+
+
         },
         watch: {
-          color_picker: function(){
-            this.colorPickerOpen = this.color_picker;
-          },
-          draw_text: function(){
-            if(this.draw_text === true)
-              this.createText();
-          },
-          text_bold: function(){
-            if(this.text_bold)
-              this.setTextStyle(1);
-            this.$emit('reset-text-style');
-          
-          },
-          text_italic: function(){
-            if(this.text_italic)
-              this.setTextStyle(2);
+            color_picker: function () {
+                this.colorPickerOpen = this.color_picker;
+            },
+            draw_text: function () {
+                if (this.draw_text === true)
+                    this.createText();
+            },
+            text_bold: function () {
+                if (this.text_bold)
+                    this.setTextStyle(1);
+                this.$emit('reset-text-style');
 
-            this.$emit('reset-text-style');
-          
-          },
-          text_underline: function(){
-            if(this.text_underline)
-              this.setTextStyle(3);
+            },
+            text_italic: function () {
+                if (this.text_italic)
+                    this.setTextStyle(2);
 
-            this.$emit('reset-text-style');
-          
-          },
-          draw_rect: function(){
-            this.createRect();
-          }
+                this.$emit('reset-text-style');
+
+            },
+            text_underline: function () {
+                if (this.text_underline)
+                    this.setTextStyle(3);
+
+                this.$emit('reset-text-style');
+
+            },
+            draw_rect: function () {
+                if (this.draw_rect === true)
+                    this.createRect();
+            },
+            draw_circle: function () {
+                if (this.draw_circle === true)
+                    this.createCircle();
+            },
+            image_status: function () {
+                console.log('draw image changed ', this.draw_image)
+                if (this.draw_image.visible === true && this.draw_image.src !== null)
+                    this.createImage(this.draw_image.src.src)
+            }
         },
         methods: {
             createText() {
@@ -99,7 +110,7 @@
                     fontSize: 30,
                     fill: "red",
                     width: 200,
-                    fontStyle:'normal',
+                    fontStyle: 'normal',
                     id: this.text_list.length + parseInt(Math.random() * 100, 10),
                     name: this.text_list.length + "text" + parseInt(Math.random() * 100, 10),
                     shapetype: 0,
@@ -131,8 +142,6 @@
                     y: 100,
                     radius: 70,
                     fill: "red",
-                    stroke: "black",
-                    strokeWidth: 4,
 
                     scaleX: 1,
                     scaleY: 1,
@@ -143,18 +152,23 @@
                         parseInt(Math.random() * 100, 10),
                     shapetype: 2
                 });
+                this.$emit('completed-circle-draw');
             },
 
-            createImage(src = "https://konvajs.org/assets/yoda.jpg") {
+            createImage(src = "https://konvajs.org/assets/yoda.jpg", dimensions = {
+                width: 106,
+                height: 118
+            }) {
                 var yoda = new window.Image();
                 yoda.src = src;
+
                 yoda.onload = () => {
                     this.image_list.push({
                         x: 50,
                         y: 50,
                         image: yoda,
-                        width: 106,
-                        height: 118,
+                        width: dimensions.width,
+                        height: dimensions.height,
                         draggable: true,
                         id: this.image_list.length + parseInt(Math.random() * 100, 10),
                         name: this.image_list.length +
@@ -163,6 +177,7 @@
                         shapetype: 3
                     });
                 };
+                this.$emit('completed-image-draw');
             },
             openColorPicker() {
                 this.colorPickerOpen = false;
@@ -179,15 +194,57 @@
                 // focus it
                 // also stage will be in focus on its click
                 container.focus();
+                var self = this;
                 container.addEventListener("keydown", function (e) {
                     console.log("keywodn event ", e);
+                    self.checkToDeleteShape(e);
+
                 });
                 container.addEventListener("keypress", function (e) {
                     console.log("keywodn event ", e);
+                    self.checkToDeleteShape(e);
                 });
             },
-            keydownEvent(e) {
-                console.log("kehdown ", e.keyCode);
+            checkToDeleteShape(e) {
+                if (e.keyCode === 8 || e.keyCode === 46) {
+                    if (this.selectedShapeName.length > 0 && this.selectedShapeType !== null) {
+                        switch (this.selectedShapeType) {
+                            case 0:
+                                var elem = this.text_list.find(r => r.name === this.selectedShapeName);
+                                console.log('found eleme to delete ', elem);
+                                this.deleteShape();
+                                var new_list =[];
+                                this.text_list.forEach(element => {
+                                  console.log('checking {element.name !== this.selectedShapeName} ',element.name !== this.selectedShapeName)
+                                  if(element.name !== this.selectedShapeName)
+                                  {
+                                    new_list.push(element);
+                                  }
+                                });
+                                this.text_list = new_list;
+                                break;
+                            default:
+                                console.log('unselected shape ')
+
+                        }
+                    } else
+                        console.log('have you selected anything?')
+                }
+            },
+            deleteShape() {
+                const transformerNode = this.$refs.transformer.getNode();
+                const stage = transformerNode.getStage();
+                const {
+                    selectedShapeName
+                } = this;
+
+                var selectedNode = stage.findOne("." + selectedShapeName);
+                console.log('seletec node to delete ', selectedNode)
+                if (selectedNode !== undefined) {
+                    this.selectedNode.remove();
+
+                }
+
             },
             handleStageMouseDown(e) {
                 // clear stage
@@ -248,42 +305,50 @@
                 transformerNode.getLayer().batchDraw();
             },
             changeShapeColor(color) {
-              console.log('change-shape-color ',color)
+                console.log('change-shape-color ', color)
                 switch (this.selectedShapeType) {
                     case 0:
-                      this.text_list.forEach(text => {
-                        text.fill = color;
-                      });
+                        this.text_list.forEach(text => {
+                            if (text.name === this.selectedShapeName)
+                                text.fill = color;
+                        });
+                        break;
                     case 1:
-                      this.rect_list.forEach(rect => {
-                        rect.fill = color;
-                      });
+                        this.rect_list.forEach(rect => {
+                            if (rect.name === this.selectedShapeName)
+                                rect.fill = color;
+                        });
+                        break;
+                    case 2:
+                        this.circle_list.forEach(circle => {
+                            if (circle.name === this.selectedShapeName)
+                                circle.fill = color;
+                        });
+                        break;
                 }
             },
-            setTextStyle(style)
-            {
-                var fontStyle ;
-                if(style === 1)
-                  fontStyle = "bold";
-                else if(style ===2)
-                  fontStyle = "italic";
-                else if(style === 3)
-                  fontStyle = 'underline';
+            setTextStyle(style) {
+                var fontStyle;
+                if (style === 1)
+                    fontStyle = "bold";
+                else if (style === 2)
+                    fontStyle = "italic";
+                else if (style === 3)
+                    fontStyle = 'underline';
                 switch (this.selectedShapeType) {
                     case 0:
-                      this.text_list.forEach(text => {
-                        if(style === 3)
-                          text.textDecoration = 'underline';
-                        else
-                          text.fontStyle = fontStyle;
-                      });
+                        this.text_list.forEach(text => {
+                            if (style === 3)
+                                text.textDecoration = 'underline';
+                            else
+                                text.fontStyle = fontStyle;
+                        });
                 }
-              
+
             },
-            closeColorPicker()
-            {
-              this.colorPickerOpen = false;
-              this.$emit('close-color-picker');
+            closeColorPicker() {
+                this.colorPickerOpen = false;
+                this.$emit('close-color-picker');
             },
             clearStage(e) {
                 // clicked on stage - clear selection
