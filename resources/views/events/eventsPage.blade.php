@@ -15,6 +15,8 @@
         v-on:close-loader-modal="closeLoader()"></loader>
         <errormodal v-if="Error.visible" v-bind="Error"
         v-on:close-error-modal="Error.resetErrorModal()"></errormodal>
+        <troubleshooter v-if="troubleshoot.visible" v-bind="troubleshoot" 
+        v-on:close-troubleshoot-modal="troubleshoot.closeModal(troubleshoot)"></troubleshooter>
         <div class="row">
             <div class="col-md-9 col-lg-9 col-sm-12 col-xs-12">
                 <div class="row">
@@ -37,30 +39,31 @@
                                             </a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <img src="/images/upload_icon.png" alt="" style="height:15px">  Upload file
+                                            <a class="nav-link dropdown-toggle" :class="{'disabled': !is_hosting}"
+                                            href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <img src="/images/upload_icon.png" alt="" style="height:15px" >  Upload file
                                             </a>
-                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown" :class="{'disabled': !is_hosting}">
                                               <a class="dropdown-item" href="#" @click.prevent="$refs.pdfUploader.click()">
                                                   Pdf file
 
                                               </a>
-                                              <a class="dropdown-item" href="#" @click.prevent="$refs.pptUploader.click()">
+                                              <a class="dropdown-item" href="#" @click.prevent="$refs.pptUploader.click()" :class="{'disabled': !is_hosting}">
                                                   Powerpoint
                                                 </a>
                                               <div class="dropdown-divider"></div>
                                             </div>
                                           </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#" @click.prevent="getBackgroundColor()">
+                                            <a class="nav-link" href="#" @click.prevent="getBackgroundColor()" :class="{'disabled': !is_hosting}">
                                                 <img src="/images/color_icon.png" alt="" style="height:25px"> Background
                                                 color
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#" @click.prevent="triggerFileSharing()">
+                                            <a class="nav-link" href="#" @click.prevent="triggerTroubleShoot()">
                                                 <img src="/images/troubleshoot_icon.jpg" alt="" style="height:25px">
-                                                Troubleshoot
+                                                Troubleshoot 
                                             </a>
                                         </li>
                                     </ul>
@@ -84,9 +87,9 @@
                                                     
                                                 </li>
 
-                                                <li class="page-item ml-3" v-if="is_hosting">
-                                                    <a href="" class="nav-link" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Vivamus
-                                                    sagittis lacus vel augue laoreet rutrum faucibus." @click.prevent="">
+                                                <li class="page-item ml-3" v-if="is_hosting" >
+                                                    <a tabindex="0" class="btn btn-lg btn-info" 
+                                                    data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" title="Give out control" data-content="You will give out controll to the other person"  >
                                                         <img src="/images/switch.svg" alt="You are not controlling" height="28px" >
                                                         Give out 
                                                     </a>
@@ -319,8 +322,10 @@
             window.type = parseInt ("{{$isteacher}}") == 1
         @endif
 
-        $(function () {
-            $('[data-toggle="popover"]').popover()
+        $(document).ready(function(){
+            $(function () {
+                $('[data-toggle="popover"]').popover()
+            })
         })
     </script>
 

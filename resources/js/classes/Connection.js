@@ -5,6 +5,7 @@ export default class {
     {
         this.connect = null;
         this.online =0;
+        this.chat_set = 0;
         this.video = null;
         self = this;
 
@@ -92,6 +93,14 @@ export default class {
             console.log('caught error ',error);
         })
     }
+    isTwilioOnline()
+    {
+        return this.online === 1;
+    }
+    isChatOn()
+    {
+        return this.chat_set === 1;
+    }
     AttachParticipantListener(callback)
     {
         this.room.on('trackAdded', function(track,participant) {
@@ -129,6 +138,7 @@ export default class {
                 message: "The data track for sending message is  set",
                 timestamp: self.getTodayDate(),
             })
+            this.chat_set = 1;
         }
         this.chatRoom.onmessage = function(event)
         {

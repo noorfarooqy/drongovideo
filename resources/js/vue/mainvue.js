@@ -1,4 +1,6 @@
 import ".././bootstrap";
+
+
 import Picker from 'vanilla-picker';
 
 import Error from "../classes/Error";
@@ -14,6 +16,7 @@ import errormodal from "../vuecomponents/errormodal.vue"
 import loader from "../vuecomponents/loader.vue"
 // import pdfjs from "../pdfcomponent/pdfjs.vue";
 import konvacanvas from "../canvas/konvacanvas.vue";
+import troubleshooter from "../vuecomponents/troubleshoot.vue";
 // import whiteboard from "../whiteboard/whiteboard.vue";
 
 // const VideoGrant = AccessToken.VideoGrant;
@@ -93,6 +96,18 @@ var App = new Vue({
             visible:false,
             update: false,
 
+        },
+        troubleshoot: {
+            visible: false,
+            Errors: [],
+            Success: [],
+            Info: [],
+            closeModal: function(troubleshoot){
+                troubleshoot.visible = false;
+                troubleshoot.Errors = [],
+                troubleshoot.Success =[],
+                troubleshoot.Info = []
+            }
         }
         
 
@@ -213,6 +228,41 @@ var App = new Vue({
             }
             
         },
+        triggerTroubleShoot()
+        {
+            this.troubleshoot.visible = true;
+            this.checkDataConnection();//sending screen data and chat
+            this.checkTwilioConnection();//video
+            this.checkCanvasInformation();
+        },
+        checkDataConnection()
+        {
+            if(this.Connection.isChatOn())
+            {
+                this.troubleshoot.Success.push({
+                    text: 'You are connected to the data channel '
+                })
+            }
+            else
+                this.troubleshoot.Errors.push({
+                    text: 'You are not connected to the video channel'
+                })
+        },
+        checkTwilioConnection()
+        {
+            if(this.Connection.isOnline())
+            {
+                this.troubleshoot.Success.push({
+                    text: 'You are connected to the video channel '
+                })
+            }
+            else
+                this.troubleshoot.Errors.push({
+                    text: 'You are not connected to the video channel'
+                })
+        },
+        checkCanvasInformation()
+        {},
         triggerFileSharing()
         {
             this.file_sharing = {
@@ -368,7 +418,7 @@ var App = new Vue({
             var canvas =document.querySelector('#limitCanvas');
             var ctx  = canvas.getContext('2d');
             var current_image = canvas.toDataURL('image/png');
-            console.log('current image ',current_image);
+            // console.log('current image ',current_image);
             // ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0,canvas.width, canvas.height);
             ctx.fillStyle = color;
@@ -565,5 +615,6 @@ var App = new Vue({
         }
 
     },
-    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader}
+    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader,troubleshooter,
+        }
 })

@@ -2,7 +2,8 @@
     <div id="container" ref="containerCanvas">
         <color-picker v-if="colorPickerOpen" v-bind="{visible: colorPickerOpen}"
             v-on:change-shape-color="changeShapeColor" v-on:close-color-picker="closeColorPicker()"></color-picker>
-        <v-stage :config="stageSize" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown">
+        <v-stage :config="stageSize" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown" ref="stage"
+         @mousemove="sendCanvasUpdate">
             <v-layer ref="layer" v-on:draw-layer="drawLayer">
                 <vuetext v-bind="{text_list: text_list}"></vuetext>
                 <vuerect v-bind="{rect_list: rect_list}"></vuerect>
@@ -49,8 +50,8 @@
             colorPicker
         },
         props: [
-            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline","file_sharing_status",
-            "draw_rect", "draw_circle", "draw_image", "image_status", "draw_eraser", "file_sharing"
+            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline","change_file_page",
+            "draw_rect", "draw_circle", "draw_image", "image_status", "draw_eraser", "file_sharing","is_hosting"
         ],
         created() {},
         mounted() {
@@ -110,6 +111,12 @@
               if(this.file_sharing !== null)
                 this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
                 this.$emit('completed-sharing-file')
+            },
+            change_file_page: function () {
+              console.log('change file page received ',this.file_sharing);
+              if(this.file_sharing !== null)
+                this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
+                this.$emit('completed-changing-page')
             },
         },
         methods: {
@@ -173,15 +180,19 @@
                 var yoda = new window.Image();
                 yoda.src = src;
                 var draggable = true;
+                var x = 50;
+                var y = 50;
                 if(type ===2)
                 {
                   draggable = false;
+                  x = 0;
+                  y = 0;
                   this.resetAllShapes();
                 }  
                 yoda.onload = () => {
                     this.image_list.push({
-                        x: 50,
-                        y: 50,
+                        x: x,
+                        y: y,
                         image: yoda,
                         width: dimensions.width,
                         height: dimensions.height,
@@ -194,6 +205,15 @@
                     });
                 };
                 this.$emit('completed-image-draw');
+            },
+            sendCanvasUpdate()
+            {
+                if(!this.is_hosting)
+                    return;
+                var stage = this.$refs.stage.getStage();
+                console.log('stage ',stage)
+                var uri = stage.toDataURL();
+                this.$emit('send-canvas-update',uri)
             },
             openColorPicker() {
                 this.colorPickerOpen = false;

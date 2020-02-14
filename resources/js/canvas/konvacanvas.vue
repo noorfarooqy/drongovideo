@@ -110,7 +110,7 @@
                         controls @canplay="updatePaused($event,1)" @playing="updatePaused($event,2)" @pause="updatePaused($event,3)"></video>
                     <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;" v-else
                         controls ref="videoRemote" id="remoteVideo"></video>
-                    <button class="btn btn-danger" @click.prevent="closeVideoSharing"
+                    <button class="btn btn-danger" @click.prevent="closeVideoSharing" v-if="is_hosting"
                         style="position: absolute;font-size: 16px;top: 100px;right: 25px;cursor: pointer;">Close
                         video</button>
                 </div>
@@ -141,8 +141,9 @@
                     v-on:completed-rect-draw="KonvasConfig.draw_rect = false"
                     v-on:completed-circle-draw="KonvasConfig.draw_circle = false"
                     v-on:completed-eraser-draw="KonvasConfig.draw_eraser = false"
-                    v-on:completed-sharing-file="KonvasConfig.file_sharing_status = false"
+                    v-on:completed-changing-page="KonvasConfig.change_file_page = false"
                     v-on:completed-image-draw="resetImageDraw"
+                    v-on:send-canvas-update="stageUrl"
                     v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
                 <div v-else>
@@ -202,6 +203,7 @@
                 previous_hash : null,
                 previous_color:null,
                 KonvasConfig: {
+                    is_hosting: this.is_hosting,
                     draw_circle : false,
                     draw_rect: false,
                     draw_text: false,
@@ -212,7 +214,7 @@
                         page: 0
                     },
                     image_status : false,
-                    file_sharing_status: false,
+                    change_file_page: false,
                     color_picker : false,
                     text_bold: false,
                     text_italic:false,
@@ -243,12 +245,13 @@
             getClientHeight() {
                 return this.$refs.cardHW.clientHeight;
             },
-            stageUrl()
+            stageUrl(uri)
             {
+                // console.log('staging update canvas ',uri)
                 if(!this.is_hosting)
                     return;
-                var stage = this.$refs.stage.getStage();
-                var uri = stage.toDataURL();
+                // var stage = this.$refs.stage.getStage();
+                // var uri = stage.toDataURL();
                 var hash = Hasher({'src':uri })
                 if(hash === this.previous_hash)
                 {
@@ -531,6 +534,7 @@
                 this.KonvasConfig.draw_image.visible = false;
                 this.KonvasConfig.draw_image.src = null;
                 this.KonvasConfig.draw_image.is_normal_image =  true
+                this.KonvasConfig.image_status = false;
             },
             previousFilePage()
             {
@@ -552,6 +556,10 @@
                 var image = new window.Image();
                 image.src = this.file_sharing.pages[this.shared_file.current_page];
                 var self =this;
+
+                this.shared_file.image = image;
+                this.KonvasConfig.file_sharing = this.shared_file;
+                this.KonvasConfig.change_file_page = true;
                 image.onload = () => {
 
                     this.all.file_sharing = {};
@@ -585,14 +593,10 @@
                 image.src = this.file_sharing.pages[this.shared_file.current_page];
                 console.log('next image ',image)
                 var self =this;
-                this.KonvasConfig.draw_image = null;
-                this.KonvasConfig.draw_image = {
-                    src: image,
-                    is_normal_image : false,
-                    visible: true,
-                    page: this.shared_file.current_page
-                };
-                this.KonvasConfig.file_sharing_status = true;
+                // this.KonvasConfig.draw_image = null;
+                this.shared_file.image = image;
+                this.KonvasConfig.file_sharing = this.shared_file;
+                this.KonvasConfig.change_file_page = true;
                 image.onload = () => {
                     
                     // this.KonvasConfig.draw_image.src = image;
@@ -602,6 +606,8 @@
                     this.all.file_sharing.src = image;
                     this.all.file_sharing.url = image.src,
                     self.isLoading = false;  
+                    // this.KonvasConfig.file_sharing = {this.all.file_sharing};
+                // this.KonvasConfig.change_file_page = true;
                 }
 
                     // ctx.drawImage(image,0,0);
