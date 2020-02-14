@@ -16827,7 +16827,7 @@ var height = 700;
     vueimage: _image_vue__WEBPACK_IMPORTED_MODULE_3__["default"],
     colorPicker: _colorPicker_vue__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
-  props: ["color_picker", "draw_text", "text_bold", "text_italic", "text_underline", "draw_rect", "draw_circle", "draw_image", "image_status"],
+  props: ["color_picker", "draw_text", "text_bold", "text_italic", "text_underline", "file_sharing_status", "draw_rect", "draw_circle", "draw_image", "image_status", "draw_eraser", "file_sharing"],
   created: function created() {},
   mounted: function mounted() {
     this.stageSize.width = this.$refs.containerCanvas.clientWidth;
@@ -16861,6 +16861,17 @@ var height = 700;
     image_status: function image_status() {
       console.log('draw image changed ', this.draw_image);
       if (this.draw_image.visible === true && this.draw_image.src !== null) this.createImage(this.draw_image.src.src);
+    },
+    draw_eraser: function draw_eraser() {
+      if (this.draw_eraser === true) this.checkToDeleteShape(1);
+    },
+    file_sharing: function file_sharing() {
+      console.log('new file sharing received ', this.file_sharing);
+      if (this.file_sharing !== null) this.createImage(this.file_sharing.image.src, {
+        width: width,
+        height: this.file_sharing.height
+      }, 2);
+      this.$emit('completed-sharing-file');
     }
   },
   methods: {
@@ -16920,8 +16931,15 @@ var height = 700;
         width: 106,
         height: 118
       };
+      var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
       var yoda = new window.Image();
       yoda.src = src;
+      var draggable = true;
+
+      if (type === 2) {
+        draggable = false;
+        this.resetAllShapes();
+      }
 
       yoda.onload = function () {
         _this.image_list.push({
@@ -16930,7 +16948,7 @@ var height = 700;
           image: yoda,
           width: dimensions.width,
           height: dimensions.height,
-          draggable: true,
+          draggable: draggable,
           id: _this.image_list.length + parseInt(Math.random() * 100, 10),
           name: _this.image_list.length + "image" + parseInt(Math.random() * 100, 10),
           shapetype: 3
@@ -16963,44 +16981,104 @@ var height = 700;
         self.checkToDeleteShape(e);
       });
     },
-    checkToDeleteShape: function checkToDeleteShape(e) {
+    checkToDeleteShape: function checkToDeleteShape() {
       var _this2 = this;
 
-      if (e.keyCode === 8 || e.keyCode === 46) {
+      var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+
+      if (e.keyCode === 8 || e.keyCode === 46 || e === 1) {
         if (this.selectedShapeName.length > 0 && this.selectedShapeType !== null) {
           switch (this.selectedShapeType) {
             case 0:
               var elem = this.text_list.find(function (r) {
                 return r.name === _this2.selectedShapeName;
               });
-              console.log('found eleme to delete ', elem);
-              this.deleteShape();
+              console.log('found eleme to delete ', elem); // this.deleteShape();
+
               var new_list = [];
-              this.text_list.forEach(function (element) {
-                console.log('checking {element.name !== this.selectedShapeName} ', element.name !== _this2.selectedShapeName);
+              var old_list = this.text_list;
+              old_list.forEach(function (element) {
+                console.log('checking  ', element.name !== _this2.selectedShapeName);
 
                 if (element.name !== _this2.selectedShapeName) {
                   new_list.push(element);
                 }
               });
               this.text_list = new_list;
+              this.selectedShapeName = "";
+              this.selectedShapeType = null;
+              this.updateTransformer();
+              break;
+
+            case 1:
+              var elem = this.rect_list.find(function (r) {
+                return r.name === _this2.selectedShapeName;
+              });
+              console.log('found eleme to delete ', elem); // this.deleteShape();
+
+              var new_list = [];
+              var old_list = this.rect_list;
+              old_list.forEach(function (element) {
+                console.log('checking  ', element.name !== _this2.selectedShapeName);
+
+                if (element.name !== _this2.selectedShapeName) {
+                  new_list.push(element);
+                }
+              });
+              this.rect_list = new_list;
+              this.selectedShapeName = "";
+              this.selectedShapeType = null;
+              this.updateTransformer();
+              break;
+
+            case 2:
+              var elem = this.circle_list.find(function (r) {
+                return r.name === _this2.selectedShapeName;
+              });
+              console.log('found eleme to delete ', elem); // this.deleteShape();
+
+              var new_list = [];
+              var old_list = this.circle_list;
+              old_list.forEach(function (element) {
+                console.log('checking  ', element.name !== _this2.selectedShapeName);
+
+                if (element.name !== _this2.selectedShapeName) {
+                  new_list.push(element);
+                }
+              });
+              this.circle_list = new_list;
+              this.selectedShapeName = "";
+              this.selectedShapeType = null;
+              this.updateTransformer();
+              break;
+
+            case 3:
+              var elem = this.image_list.find(function (r) {
+                return r.name === _this2.selectedShapeName;
+              });
+              console.log('found eleme to delete ', elem); // this.deleteShape();
+
+              var new_list = [];
+              var old_list = this.image_list;
+              old_list.forEach(function (element) {
+                console.log('checking  ', element.name !== _this2.selectedShapeName);
+
+                if (element.name !== _this2.selectedShapeName) {
+                  new_list.push(element);
+                }
+              });
+              this.image_list = new_list;
+              this.selectedShapeName = "";
+              this.selectedShapeType = null;
+              this.updateTransformer();
               break;
 
             default:
               console.log('unselected shape ');
           }
-        } else console.log('have you selected anything?');
-      }
-    },
-    deleteShape: function deleteShape() {
-      var transformerNode = this.$refs.transformer.getNode();
-      var stage = transformerNode.getStage();
-      var selectedShapeName = this.selectedShapeName;
-      var selectedNode = stage.findOne("." + selectedShapeName);
-      console.log('seletec node to delete ', selectedNode);
 
-      if (selectedNode !== undefined) {
-        this.selectedNode.remove();
+          this.$emit('completed-eraser-draw');
+        } else console.log('have you selected anything?');
       }
     },
     handleStageMouseDown: function handleStageMouseDown(e) {
@@ -17106,6 +17184,12 @@ var height = 700;
         this.updateTransformer();
         return;
       }
+    },
+    resetAllShapes: function resetAllShapes() {
+      this.rect_list = [];
+      this.circle_list = [];
+      this.text_list = [];
+      this.image_list = [];
     },
     hideTransformer: function hideTransformer() {
       var transformerNode = this.$refs.transformer.getNode();
@@ -17811,6 +17895,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -17861,14 +17947,18 @@ __webpack_require__.r(__webpack_exports__);
         draw_image: {
           visible: false,
           src: null,
-          is_normal_image: true //images that are not from pdf file or ppt file are normal images
-
+          is_normal_image: true,
+          //images that are not from pdf file or ppt file are normal images
+          page: 0
         },
         image_status: false,
+        file_sharing_status: false,
         color_picker: false,
         text_bold: false,
         text_italic: false,
-        text_underline: false
+        text_underline: false,
+        draw_eraser: false,
+        file_sharing: null
       }
     };
   },
@@ -17878,6 +17968,7 @@ __webpack_require__.r(__webpack_exports__);
     this.videoSharing = this.video_sharing;
     var remoteVideo = this.$refs.remoteVideo;
     console.log('video ', remoteVideo);
+    this.KonvasConfig.file_sharing = this.file_sharing;
   },
   methods: {
     getClientWidth: function getClientWidth() {
@@ -18017,6 +18108,7 @@ __webpack_require__.r(__webpack_exports__);
           stage: _this.$refs.stage
         };
         _this.KonvasConfig.draw_image.src = image;
+        _this.KonvasConfig.draw_image.is_normal_image = false;
         _this.KonvasConfig.draw_image.visible = true;
         _this.KonvasConfig.image_status = true;
       };
@@ -18184,17 +18276,26 @@ __webpack_require__.r(__webpack_exports__);
       this.shared_file.current_page += 1;
       var image = new window.Image();
       image.src = this.file_sharing.pages[this.shared_file.current_page];
+      console.log('next image ', image);
       var self = this;
+      this.KonvasConfig.draw_image = null;
+      this.KonvasConfig.draw_image = {
+        src: image,
+        is_normal_image: false,
+        visible: true,
+        page: this.shared_file.current_page
+      };
+      this.KonvasConfig.file_sharing_status = true;
 
       image.onload = function () {
+        // this.KonvasConfig.draw_image.src = image;
         _this3.all.file_sharing = {};
         _this3.all.file_sharing.width = _this3.getClientWidth();
         _this3.all.file_sharing.height = _this3.getClientHeight();
         _this3.all.file_sharing.src = image;
         _this3.all.file_sharing.url = image.src, self.isLoading = false;
-      };
+      }; // ctx.drawImage(image,0,0);
 
-      ctx.drawImage(image, 0, 0);
     },
     //modals
     disMissErrorModal: function disMissErrorModal() {
@@ -18286,13 +18387,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     file_sharing: function file_sharing() {
       console.log('its somewhere after me');
-
-      if (this.file_sharing.type) {
-        console.log('image loaded canvas ', image);
-        this.all.imageConfig = this.file_sharing.image;
-        return;
-      }
-
+      this.KonvasConfig.file_sharing = this.file_sharing;
       this.shared_file = this.file_sharing;
       this.all.file_sharing = {};
       this.all.file_sharing.width = this.getClientWidth();
@@ -84764,7 +84859,13 @@ var render = function() {
                           {
                             staticClass: "nav-link ",
                             class: { disabled: !_vm.is_hosting },
-                            attrs: { href: "#" }
+                            attrs: { href: "#" },
+                            on: {
+                              click: function($event) {
+                                $event.preventDefault()
+                                _vm.KonvasConfig.draw_eraser = true
+                              }
+                            }
                           },
                           [
                             _c("img", {
@@ -84776,7 +84877,7 @@ var render = function() {
                                 src: "/editor_icons/eraser.svg",
                                 alt: "Erasor",
                                 height: "30px",
-                                title: "Eraser"
+                                title: "Erase selected item"
                               }
                             })
                           ]
@@ -84977,36 +85078,47 @@ var render = function() {
                   "div",
                   {},
                   [
-                    _vm.is_hosting
-                      ? _c(
-                          "vue-konvas",
-                          _vm._b(
+                    _c(
+                      "vue-konvas",
+                      _vm._b(
+                        {
+                          directives: [
                             {
-                              on: {
-                                "close-color-picker": function($event) {
-                                  _vm.KonvasConfig.color_picker = false
-                                },
-                                "completed-text-draw": function($event) {
-                                  _vm.KonvasConfig.draw_text = false
-                                },
-                                "completed-rect-draw": function($event) {
-                                  _vm.KonvasConfig.draw_rect = false
-                                },
-                                "completed-circle-draw": function($event) {
-                                  _vm.KonvasConfig.draw_circle = false
-                                },
-                                "completed-image-draw": function($event) {
-                                  return _vm.resetImageDraw()
-                                },
-                                "reset-text-style": _vm.resetTextStyle
-                              }
+                              name: "show",
+                              rawName: "v-show",
+                              value: _vm.Draw.visible,
+                              expression: "Draw.visible"
+                            }
+                          ],
+                          style: _vm.getBackgroundColor(),
+                          on: {
+                            "close-color-picker": function($event) {
+                              _vm.KonvasConfig.color_picker = false
                             },
-                            "vue-konvas",
-                            _vm.KonvasConfig,
-                            false
-                          )
-                        )
-                      : _vm._e()
+                            "completed-text-draw": function($event) {
+                              _vm.KonvasConfig.draw_text = false
+                            },
+                            "completed-rect-draw": function($event) {
+                              _vm.KonvasConfig.draw_rect = false
+                            },
+                            "completed-circle-draw": function($event) {
+                              _vm.KonvasConfig.draw_circle = false
+                            },
+                            "completed-eraser-draw": function($event) {
+                              _vm.KonvasConfig.draw_eraser = false
+                            },
+                            "completed-sharing-file": function($event) {
+                              _vm.KonvasConfig.file_sharing_status = false
+                            },
+                            "completed-image-draw": _vm.resetImageDraw,
+                            "reset-text-style": _vm.resetTextStyle
+                          }
+                        },
+                        "vue-konvas",
+                        _vm.KonvasConfig,
+                        false
+                      )
+                    )
                   ],
                   1
                 )

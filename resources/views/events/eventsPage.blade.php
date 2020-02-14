@@ -324,15 +324,6 @@
         })
     </script>
 
-<link rel="stylesheet" type="text/css" href="https://www.tutorialspoint.com/themes/css/slick.css"/>
-<link rel="stylesheet" type="text/css" href="https://www.tutorialspoint.com/themes/css/slick-theme.css"/>
-
-
-<script src="/fabric/fabric.js"></script>
-
-<script type="text/javascript" src="https://www.tutorialspoint.com/themes/js/slick.min.js"></script>
-<script type="text/javascript" src="https://www.tutorialspoint.com/themes/js/fabric-min.js"></script>
-<script type="text/javascript" src="https://www.tutorialspoint.com/themes/js/FileBufferReader.min.js"></script>
 @php 
 
 @endphp

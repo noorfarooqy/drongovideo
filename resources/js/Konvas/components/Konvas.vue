@@ -49,13 +49,14 @@
             colorPicker
         },
         props: [
-            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline",
-            "draw_rect", "draw_circle", "draw_image", "image_status"
+            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline","file_sharing_status",
+            "draw_rect", "draw_circle", "draw_image", "image_status", "draw_eraser", "file_sharing"
         ],
         created() {},
         mounted() {
             this.stageSize.width = this.$refs.containerCanvas.clientWidth;
             this.initKeyEvents()
+            
 
 
         },
@@ -99,7 +100,17 @@
                 console.log('draw image changed ', this.draw_image)
                 if (this.draw_image.visible === true && this.draw_image.src !== null)
                     this.createImage(this.draw_image.src.src)
-            }
+            },
+            draw_eraser: function () {
+                if (this.draw_eraser === true)
+                    this.checkToDeleteShape(1);
+            },
+            file_sharing: function () {
+              console.log('new file sharing received ',this.file_sharing);
+              if(this.file_sharing !== null)
+                this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
+                this.$emit('completed-sharing-file')
+            },
         },
         methods: {
             createText() {
@@ -158,10 +169,15 @@
             createImage(src = "https://konvajs.org/assets/yoda.jpg", dimensions = {
                 width: 106,
                 height: 118
-            }) {
+            }, type=1) {
                 var yoda = new window.Image();
                 yoda.src = src;
-
+                var draggable = true;
+                if(type ===2)
+                {
+                  draggable = false;
+                  this.resetAllShapes();
+                }  
                 yoda.onload = () => {
                     this.image_list.push({
                         x: 50,
@@ -169,7 +185,7 @@
                         image: yoda,
                         width: dimensions.width,
                         height: dimensions.height,
-                        draggable: true,
+                        draggable: draggable,
                         id: this.image_list.length + parseInt(Math.random() * 100, 10),
                         name: this.image_list.length +
                             "image" +
@@ -205,46 +221,92 @@
                     self.checkToDeleteShape(e);
                 });
             },
-            checkToDeleteShape(e) {
-                if (e.keyCode === 8 || e.keyCode === 46) {
+            checkToDeleteShape(e=1) {
+                if (e.keyCode === 8 || e.keyCode === 46 || e === 1) {
                     if (this.selectedShapeName.length > 0 && this.selectedShapeType !== null) {
                         switch (this.selectedShapeType) {
                             case 0:
                                 var elem = this.text_list.find(r => r.name === this.selectedShapeName);
                                 console.log('found eleme to delete ', elem);
-                                this.deleteShape();
+                                // this.deleteShape();
                                 var new_list =[];
-                                this.text_list.forEach(element => {
-                                  console.log('checking {element.name !== this.selectedShapeName} ',element.name !== this.selectedShapeName)
+                                var old_list = this.text_list;
+                                old_list.forEach(element => {
+                                  console.log('checking  ',element.name !== this.selectedShapeName)
                                   if(element.name !== this.selectedShapeName)
                                   {
                                     new_list.push(element);
                                   }
                                 });
                                 this.text_list = new_list;
+                                this.selectedShapeName = "";
+                                this.selectedShapeType = null;
+                                this.updateTransformer();
+                                break;
+                              case 1:
+                                var elem = this.rect_list.find(r => r.name === this.selectedShapeName);
+                                console.log('found eleme to delete ', elem);
+                                // this.deleteShape();
+                                var new_list =[];
+                                var old_list = this.rect_list;
+                                old_list.forEach(element => {
+                                  console.log('checking  ',element.name !== this.selectedShapeName)
+                                  if(element.name !== this.selectedShapeName)
+                                  {
+                                    new_list.push(element);
+                                  }
+                                });
+                                this.rect_list = new_list;
+                                this.selectedShapeName = "";
+                                this.selectedShapeType = null;
+                                this.updateTransformer();
+                                break;
+                              
+                              case 2:
+                                var elem = this.circle_list.find(r => r.name === this.selectedShapeName);
+                                console.log('found eleme to delete ', elem);
+                                // this.deleteShape();
+                                var new_list =[];
+                                var old_list = this.circle_list;
+                                old_list.forEach(element => {
+                                  console.log('checking  ',element.name !== this.selectedShapeName)
+                                  if(element.name !== this.selectedShapeName)
+                                  {
+                                    new_list.push(element);
+                                  }
+                                });
+                                this.circle_list = new_list;
+                                this.selectedShapeName = "";
+                                this.selectedShapeType = null;
+                                this.updateTransformer();
+                                break;
+                              
+                              case 3:
+                                var elem = this.image_list.find(r => r.name === this.selectedShapeName);
+                                console.log('found eleme to delete ', elem);
+                                // this.deleteShape();
+                                var new_list =[];
+                                var old_list = this.image_list;
+                                old_list.forEach(element => {
+                                  console.log('checking  ',element.name !== this.selectedShapeName)
+                                  if(element.name !== this.selectedShapeName)
+                                  {
+                                    new_list.push(element);
+                                  }
+                                });
+                                this.image_list = new_list;
+                                this.selectedShapeName = "";
+                                this.selectedShapeType = null;
+                                this.updateTransformer();
                                 break;
                             default:
                                 console.log('unselected shape ')
 
                         }
+                        this.$emit('completed-eraser-draw');
                     } else
                         console.log('have you selected anything?')
                 }
-            },
-            deleteShape() {
-                const transformerNode = this.$refs.transformer.getNode();
-                const stage = transformerNode.getStage();
-                const {
-                    selectedShapeName
-                } = this;
-
-                var selectedNode = stage.findOne("." + selectedShapeName);
-                console.log('seletec node to delete ', selectedNode)
-                if (selectedNode !== undefined) {
-                    this.selectedNode.remove();
-
-                }
-
             },
             handleStageMouseDown(e) {
                 // clear stage
@@ -358,6 +420,13 @@
                     this.updateTransformer();
                     return;
                 }
+            },
+            resetAllShapes()
+            {
+              this.rect_list = [];
+              this.circle_list = [];
+              this.text_list = [];
+              this.image_list = [];
             },
             hideTransformer() {
                 const transformerNode = this.$refs.transformer.getNode();

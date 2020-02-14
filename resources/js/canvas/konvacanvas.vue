@@ -72,9 +72,9 @@
                                 </a>
                             </li>
                             <li class="nav-item " :class="{'not-allowed': !is_hosting}">
-                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#">
+                                <a class="nav-link " :class="{'disabled': !is_hosting}"  href="#" @click.prevent="KonvasConfig.draw_eraser = true">
                                     <img src="/editor_icons/eraser.svg" alt="Erasor" height="30px"
-                                        style="border:thin solid gray; padding:3px" title="Eraser" />
+                                        style="border:thin solid gray; padding:3px" title="Erase selected item" />
                                 </a>
                             </li>
                         </ul>
@@ -135,12 +135,14 @@
 
                 </v-stage> -->
                 <!-- <textcomponent v-bind="{out_configKonva: configKonva}"></textcomponent> -->
-                <vue-konvas v-bind="KonvasConfig" v-if="is_hosting" 
+                <vue-konvas v-bind="KonvasConfig" v-show="Draw.visible"  :style="getBackgroundColor()"
                     v-on:close-color-picker="KonvasConfig.color_picker = false"
                     v-on:completed-text-draw="KonvasConfig.draw_text = false"
                     v-on:completed-rect-draw="KonvasConfig.draw_rect = false"
                     v-on:completed-circle-draw="KonvasConfig.draw_circle = false"
-                    v-on:completed-image-draw="resetImageDraw()"
+                    v-on:completed-eraser-draw="KonvasConfig.draw_eraser = false"
+                    v-on:completed-sharing-file="KonvasConfig.file_sharing_status = false"
+                    v-on:completed-image-draw="resetImageDraw"
                     v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
                 <div v-else>
@@ -207,12 +209,16 @@
                         visible: false,
                         src: null,
                         is_normal_image: true,//images that are not from pdf file or ppt file are normal images
+                        page: 0
                     },
                     image_status : false,
+                    file_sharing_status: false,
                     color_picker : false,
                     text_bold: false,
                     text_italic:false,
                     text_underline: false,
+                    draw_eraser: false,
+                    file_sharing: null,
                 }
 
 
@@ -227,6 +233,7 @@
 
             var remoteVideo = this.$refs.remoteVideo;
             console.log('video ',remoteVideo);
+            this.KonvasConfig.file_sharing = this.file_sharing;
         },
         methods: {
 
@@ -389,6 +396,8 @@
                         stage: this.$refs.stage,
                     }
                     this.KonvasConfig.draw_image.src = image;
+                    this.KonvasConfig.draw_image.is_normal_image = false;
+
                     this.KonvasConfig.draw_image.visible = true
                     this.KonvasConfig.image_status = true
                 }
@@ -557,6 +566,7 @@
             },
             nextFilePage()
             {
+                
                 this.isLoading = true;
                 if(this.shared_file === null)
                 {
@@ -573,9 +583,19 @@
                 this.shared_file.current_page +=1;
                 var image = new window.Image();
                 image.src = this.file_sharing.pages[this.shared_file.current_page];
+                console.log('next image ',image)
                 var self =this;
+                this.KonvasConfig.draw_image = null;
+                this.KonvasConfig.draw_image = {
+                    src: image,
+                    is_normal_image : false,
+                    visible: true,
+                    page: this.shared_file.current_page
+                };
+                this.KonvasConfig.file_sharing_status = true;
                 image.onload = () => {
-
+                    
+                    // this.KonvasConfig.draw_image.src = image;
                     this.all.file_sharing = {};
                     this.all.file_sharing.width = this.getClientWidth();
                     this.all.file_sharing.height = this.getClientHeight();
@@ -584,7 +604,7 @@
                     self.isLoading = false;  
                 }
 
-                    ctx.drawImage(image,0,0);
+                    // ctx.drawImage(image,0,0);
             },
 
             //modals
@@ -677,12 +697,7 @@
             },
             file_sharing: function () {
                 console.log('its somewhere after me');
-                if(this.file_sharing.type)
-                {
-                    console.log('image loaded canvas ',image)
-                    this.all.imageConfig = this.file_sharing.image
-                    return;
-                }
+                this.KonvasConfig.file_sharing = this.file_sharing;
 
                 this.shared_file =this.file_sharing;
                 this.all.file_sharing = {};
