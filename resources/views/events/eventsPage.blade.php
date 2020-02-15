@@ -17,6 +17,7 @@
         v-on:close-error-modal="Error.resetErrorModal()"></errormodal>
         <troubleshooter v-if="troubleshoot.visible" v-bind="troubleshoot" 
         v-on:close-troubleshoot-modal="troubleshoot.closeModal(troubleshoot)"></troubleshooter>
+        
         <div class="row">
             <div class="col-md-9 col-lg-9 col-sm-12 col-xs-12">
                 <div class="row">
@@ -88,11 +89,14 @@
                                                 </li>
 
                                                 <li class="page-item ml-3" v-if="is_hosting" >
-                                                    <a tabindex="0" class="btn btn-lg btn-info" 
+                                                    <a tabindex="0" class="btn btn-lg btn-info" @click.prevent="giveOutControl()"
                                                     data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" title="Give out control" data-content="You will give out controll to the other person"  >
                                                         <img src="/images/switch.svg" alt="You are not controlling" height="28px" >
                                                         Give out 
                                                     </a>
+                                                    <control  v-if="Access.visible" v-bind="Access"
+                                                    v-on:grant-access-confirm="GiveOutAccess()"
+                                                    v-on:cancel-grant-access="Access.closeModal(Access)" ></control>
                                                      
                                                 </li>
 

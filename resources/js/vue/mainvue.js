@@ -17,6 +17,7 @@ import loader from "../vuecomponents/loader.vue"
 // import pdfjs from "../pdfcomponent/pdfjs.vue";
 import konvacanvas from "../canvas/konvacanvas.vue";
 import troubleshooter from "../vuecomponents/troubleshoot.vue";
+import control from "../vuecomponents/control.vue";
 // import whiteboard from "../whiteboard/whiteboard.vue";
 
 // const VideoGrant = AccessToken.VideoGrant;
@@ -108,6 +109,20 @@ var App = new Vue({
                 troubleshoot.Success =[],
                 troubleshoot.Info = []
             }
+        },
+        Access: {
+            visible: false,
+            Errors: {
+                text: null,
+                visible: false
+            },
+            closeModal: function(model)
+            {
+                model.visible = false;
+                model.Errors.text = null;
+                model.Errors.visible = false;
+                model.visible = false
+            },
         }
         
 
@@ -195,6 +210,12 @@ var App = new Vue({
                 this.video_sharing.playing = false;
                 this.video_sharing.current_time = 0
             }
+            else if(message.type === 7 && this.is_hosting === false)
+            {
+                // this.file_sharing
+                // TO DO : reset all canvas data
+                this.is_hosting = true;
+            }
             else
             {
                 console.log('uknown message type ',message);
@@ -260,6 +281,24 @@ var App = new Vue({
                 this.troubleshoot.Errors.push({
                     text: 'You are not connected to the video channel'
                 })
+        },
+        GiveOutAccess()
+        {
+            if(this.Connection.isChatOn())
+            {
+                this.canvasUpdate({type: 7, head: 'system'})
+                this.is_hosting = false;
+            }
+            else{
+
+                this.Access.Errors.text = "Cannot give out access. Connection is not set";
+                this.Access.Errors.visible = true;
+            }
+            
+        },
+        giveOutControl()
+        {
+            this.Access.visible = true;
         },
         checkCanvasInformation()
         {},
@@ -615,6 +654,6 @@ var App = new Vue({
         }
 
     },
-    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader,troubleshooter,
+    components: {localvideo, remotevideo, customCanvas:konvacanvas, errormodal, loader,troubleshooter,control
         }
 })
