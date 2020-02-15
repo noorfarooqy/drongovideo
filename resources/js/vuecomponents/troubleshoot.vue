@@ -22,14 +22,14 @@
                             <font-awesome-icon :icon="['fas', 'info']" class="mr-4" />
                             {{info.text}}
                         </div>
-                        <div class="alert alert-success" v-for="(success, ekey) in Info" :key="ekey" >
+                        <div class="alert alert-success" v-for="(success, ekey) in Success" :key="ekey" >
                             <font-awesome-icon :icon="['fas', 'check']" class="mr-4" />
                             {{success.text}}
                         </div>
 
                         <div class="row">
                             <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2"></div>
-                            <button class="col-md-8 col-lg-8 col-sm-8 col-xs-8 btn btn-primary">
+                            <button class="col-md-8 col-lg-8 col-sm-8 col-xs-8 btn btn-primary" v-if="Errors.length > 0">
                                  Fix and Reset 
                             </button>
                             <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2"></div>

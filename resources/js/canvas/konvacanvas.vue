@@ -715,6 +715,9 @@
                     this.resetVideoSharing();
 
                 }
+            },
+            is_hosting: function(){
+                this.KonvasConfig.is_hosting = true;
             }
         }
 

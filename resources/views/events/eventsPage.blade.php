@@ -95,17 +95,26 @@
                                                         Give out 
                                                     </a>
                                                     <control  v-if="Access.visible" v-bind="Access"
-                                                    v-on:grant-access-confirm="GiveOutAccess()"
+                                                    v-on:grant-access-confirm="GiveOutAccess"
+                                                    v-on:deny-grant-extra="AccessDenied"
                                                     v-on:cancel-grant-access="Access.closeModal(Access)" ></control>
                                                      
                                                 </li>
 
                                                 <li class="page-item ml-3" v-else>
-                                                    <a href="" class="nav-link">
-                                                        <img src="/images/swap.svg" alt="You are not controlling" height="30px" >
-                                                        <span v-if="host_type == 0 ">Get control</span>
-                                                        <span v-if="host_type == 1 ">Request control</span>
+                                                    <a href="" class="nav-link" v-if="host_type == 0 " @click.prevent="getControlBack()">
+                                                        <img src="/images/swap.svg" alt="Get control back" height="30px" >
+                                                        <span >Get control</span>
                                                     </a>
+                                                    
+                                                    <a href="" class="nav-link" v-else @click.prevent="requestControl()">
+                                                        <img src="/images/swap.svg" alt="Request for control" height="30px" >
+                                                        <span >Request control</span>
+                                                    </a>
+                                                    <control  v-if="Access.visible" v-bind="Access"
+                                                    v-on:grant-access-confirm="GiveOutAccess"
+                                                    v-on:deny-grant-extra="AccessDenied"
+                                                    v-on:cancel-grant-access="Access.closeModal(Access)" ></control>
                                                     
                                                 </li>
 

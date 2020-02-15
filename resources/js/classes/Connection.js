@@ -131,6 +131,7 @@ export default class {
     startChatConnection(room_name, messageReceiveCallback)
     {
         this.chatRoom.session = this.chatConfig;
+        var self = this;
         this.chatRoom.onopen = function(){
             self.SystemLog({
                 type:1,
@@ -138,7 +139,7 @@ export default class {
                 message: "The data track for sending message is  set",
                 timestamp: self.getTodayDate(),
             })
-            this.chat_set = 1;
+            self.chat_set = 1;
         }
         this.chatRoom.onmessage = function(event)
         {

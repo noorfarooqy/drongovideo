@@ -116,12 +116,20 @@ var App = new Vue({
                 text: null,
                 visible: false
             },
+            hijack_control : false,
+            request_control: false,
+            show_request: false,
+            request_denied: false,
             closeModal: function(model)
             {
                 model.visible = false;
                 model.Errors.text = null;
                 model.Errors.visible = false;
                 model.visible = false
+                model.hijack_control = false
+                model.request_control = false
+                model.show_request = false;
+                model.request_denied = false
             },
         }
         
@@ -210,11 +218,37 @@ var App = new Vue({
                 this.video_sharing.playing = false;
                 this.video_sharing.current_time = 0
             }
-            else if(message.type === 7 && this.is_hosting === false)
+            else if(message.type === 7 && this.is_hosting  === false)
             {
                 // this.file_sharing
                 // TO DO : reset all canvas data
+                
                 this.is_hosting = true;
+            }
+            else if(message.type === 8 && this.is_hosting  === true)
+            {
+                // this.file_sharing
+                // TO DO : reset all canvas data
+                
+                alert('control has been revoked');
+
+                this.is_hosting = false;
+            }
+            else if(message.type === 9 && this.is_hosting  === true)
+            {
+                // this.file_sharing
+                // TO DO : reset all canvas data
+                
+                this.Access.show_request = true;
+                this.giveOutControl();
+            }
+            else if(message.type === 10 && this.is_hosting  === false)
+            {
+                // this.file_sharing
+                // TO DO : reset all canvas data
+                
+                this.Access.request_denied = true;
+                this.giveOutControl();
             }
             else
             {
@@ -266,7 +300,7 @@ var App = new Vue({
             }
             else
                 this.troubleshoot.Errors.push({
-                    text: 'You are not connected to the video channel'
+                    text: 'You are not connected to the data channel'
                 })
         },
         checkTwilioConnection()
@@ -282,26 +316,44 @@ var App = new Vue({
                     text: 'You are not connected to the video channel'
                 })
         },
-        GiveOutAccess()
+        GiveOutAccess(accesstype=7)
         {
             if(this.Connection.isChatOn())
             {
-                this.canvasUpdate({type: 7, head: 'system'})
-                this.is_hosting = false;
+                this.canvasUpdate({type: accesstype, head: 'system'})
+                if(accesstype !== 9)
+                    this.is_hosting = !this.is_hosting;
+                
+                this.Access.closeModal(this.Access);
             }
             else{
 
-                this.Access.Errors.text = "Cannot give out access. Connection is not set";
+                this.Access.Errors.text = "Cannot give out or get access. Connection for data chennel is not set";
                 this.Access.Errors.visible = true;
             }
             
         },
+        AccessDenied(e)
+        {
+            console.log('access denied ',e);
+            this.canvasUpdate({type: 10, head: 'system'})
+        },
+        requestControl()
+        {
+            this.Access.request_control = true;
+            this.giveOutControl();
+        },
+        checkCanvasInformation()
+        {},
         giveOutControl()
         {
             this.Access.visible = true;
         },
-        checkCanvasInformation()
-        {},
+        getControlBack()
+        {
+            this.Access.hijack_control = true
+            this.giveOutControl();
+        },
         triggerFileSharing()
         {
             this.file_sharing = {
@@ -626,7 +678,7 @@ var App = new Vue({
             if(this.is_hosting)
                 return "You in control";
             else
-                return this.host_type === 0 ? "Teacher in Control " : "School in control"
+                return this.host_type == false ? "Teacher in Control " : "School in control"
         },
         getMessageClass(origin)
         {
