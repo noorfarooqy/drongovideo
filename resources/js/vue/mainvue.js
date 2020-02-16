@@ -31,12 +31,12 @@ var App = new Vue({
         local_video: {
             video_src: [],
             visible: false,
-            muted: true,
+            muted: false,
         },
         remote_video: {
             video_src: [],
             visible: false,
-            muted: true,
+            muted: false,
         },
         default_video: {
             video_src: '/images/offline.svg',
@@ -292,7 +292,7 @@ var App = new Vue({
         },
         checkDataConnection()
         {
-            if(this.Connection.isChatOn())
+            if(this.Connection.chatRoom.isOnline)
             {
                 this.troubleshoot.Success.push({
                     text: 'You are connected to the data channel '
@@ -305,7 +305,7 @@ var App = new Vue({
         },
         checkTwilioConnection()
         {
-            if(this.Connection.isOnline())
+            if(this.Connection.isOnline && this.Connection.isOnline())
             {
                 this.troubleshoot.Success.push({
                     text: 'You are connected to the video channel '
@@ -315,6 +315,20 @@ var App = new Vue({
                 this.troubleshoot.Errors.push({
                     text: 'You are not connected to the video channel'
                 })
+        },
+        checkCanvasInformation()
+        {
+            if(this.is_hosting)
+            {
+                this.troubleshoot.info.push({
+                    text: 'You are in control of the whiteboard'
+                })
+            }
+            else
+                this.troubleshoot.info.push({
+                    text: this.getHostInControl() + " of the whiteboard"
+                })
+            
         },
         GiveOutAccess(accesstype=7)
         {
@@ -343,8 +357,6 @@ var App = new Vue({
             this.Access.request_control = true;
             this.giveOutControl();
         },
-        checkCanvasInformation()
-        {},
         giveOutControl()
         {
             this.Access.visible = true;
@@ -353,6 +365,10 @@ var App = new Vue({
         {
             this.Access.hijack_control = true
             this.giveOutControl();
+        },
+        fixAndResetAll()
+        {
+            // this.
         },
         triggerFileSharing()
         {
@@ -377,13 +393,13 @@ var App = new Vue({
                 identity: window.user_name+' '+window.user_id,
                 room_name: 'noor_room',
             });
-            this.Server.serverRequest('/api/event/gettoken',
-                this.eventData, this.showErrorModal)
+            // this.Server.serverRequest('/api/event/gettoken',
+            //     this.eventData, this.showErrorModal)
         },
         eventData(data)
         {
             console.log('data ',data);
-            // this.StartConnection(data.token, 'noor_room');
+            this.StartConnection(data.token, 'noor_room');
         },
         StartConnection(token,room_name)
         {
@@ -417,6 +433,13 @@ var App = new Vue({
                 {
                     this.remote_video.video_src =[];
                 }
+                // if(remotetrack.kind === "audio")
+                // {
+                    
+                //     // remotetrack.mediaStreamTrack.muted = true;
+                //     remotetrack.isEnabled = false;
+                //     console.log('audio remote track ',remotetrack);
+                // }
                 this.remote_video.video_src.push(remotetrack);
                 // this.default_video.visible = false;
                 this.remote_video.visible = true;

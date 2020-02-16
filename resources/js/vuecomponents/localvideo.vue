@@ -8,8 +8,8 @@ export default {
         return {
             name: 'local video',
             version: 1,
-            tracks: [],
-            in_video_src: this.video_src,
+            // tracks: [],
+            // in_video_src: this.video_src,
         }
     },
     mounted(){
@@ -22,7 +22,7 @@ export default {
             var container = document.querySelector('.all-tracks');
             this.video_src.forEach(track => {
                 
-                this.tracks.push({html: track.attach(), kind:track.kind})
+                // this.tracks.push({html: track.attach(), kind:track.kind})
                 var htmlTrack = track.attach();
                 if(track.kind === "video")
                 {
@@ -36,11 +36,18 @@ export default {
             });
         }
     },
-    props: ["video_src"],
+    props: ["video_src", "muted"],
     watch: {
-        in_video_src: function(new_val, old_val){
+        video_src: function(new_val, old_val){
             console.log('changed item ');
             this.attachTracks();
+        },
+        muted: function()
+        {
+            if(this.muted)
+                this.video_src[0].disable()
+            else
+                this.video_src[0].enable();
         }
     }
 }

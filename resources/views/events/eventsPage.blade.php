@@ -16,7 +16,8 @@
         <errormodal v-if="Error.visible" v-bind="Error"
         v-on:close-error-modal="Error.resetErrorModal()"></errormodal>
         <troubleshooter v-if="troubleshoot.visible" v-bind="troubleshoot" 
-        v-on:close-troubleshoot-modal="troubleshoot.closeModal(troubleshoot)"></troubleshooter>
+        v-on:close-troubleshoot-modal="troubleshoot.closeModal(troubleshoot)"
+        v-on:fix-reset-all="fixAndResetAll()"></troubleshooter>
         
         <div class="row">
             <div class="col-md-9 col-lg-9 col-sm-12 col-xs-12">
@@ -161,6 +162,9 @@
                                 :src="default_video.video_src" alt="Offline video image" ></video>
                             
 
+                            {{-- <remotevideo v-if="remote_video !== null && remote_video.visible" v-bind="remote_video"></remotevideo>
+                            <video class="card-image remote-video" v-else
+                            :src="default_video.video_src" alt="Offline video image"></video> --}}
                             <remotevideo v-if="remote_video !== null && remote_video.visible" v-bind="remote_video"></remotevideo>
                             <video class="card-image remote-video" v-else
                             :src="default_video.video_src" alt="Offline video image"></video>

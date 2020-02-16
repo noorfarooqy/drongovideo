@@ -29,7 +29,8 @@
 
                         <div class="row">
                             <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2"></div>
-                            <button class="col-md-8 col-lg-8 col-sm-8 col-xs-8 btn btn-primary" v-if="Errors.length > 0">
+                            <button class="col-md-8 col-lg-8 col-sm-8 col-xs-8 btn btn-primary" v-if="Errors.length > 0"
+                                @click.prevent="fixAndResetAll()">
                                  Fix and Reset 
                             </button>
                             <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2"></div>
@@ -61,6 +62,10 @@ library.add(faCheck,faTimesCircle,faInfo)
         methods: {
             disMissErrorModal() {
                 this.$emit('close-troubleshoot-modal')
+            },
+            fixAndResetAll()
+            {
+                this.$emit('fix-reset-all');
             }
         },
         props: ["Errors", "Info", "Success"],
