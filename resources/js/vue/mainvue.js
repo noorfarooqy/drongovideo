@@ -131,6 +131,10 @@ var App = new Vue({
                 model.show_request = false;
                 model.request_denied = false
             },
+        },
+        room_names: {
+            video_room: 'noor_room',
+            chat_room: 'noor_chat_room',
         }
         
 
@@ -141,7 +145,7 @@ var App = new Vue({
         this.Server = new ServerRequest(this.onProgressBar);
         this.Connection =new Connection(this.logSystem);
         this.getAccesstoken();
-        this.Connection.startChatConnection('noor_chat_room',this.showMessage);
+        this.Connection.startChatConnection(this.room_names.chat_room,this.showMessage);
 
 
     },
@@ -399,7 +403,9 @@ var App = new Vue({
         eventData(data)
         {
             console.log('data ',data);
-            this.StartConnection(data.token, 'noor_room');
+            this.room_names.video_room = data.video_room;
+            this.room_names.chat_room = data.chat_room;
+            this.StartConnection(data.token, this.room_names.video_room);
         },
         StartConnection(token,room_name)
         {
