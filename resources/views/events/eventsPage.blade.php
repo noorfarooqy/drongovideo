@@ -349,8 +349,9 @@
     </script>
 
 @php 
-
+$hash = hash('md5', public_path('js/mainvue.js'));
+$filename = "/js/mainvue.js?".$hash;
 @endphp
-<script src="/js/mainvue.js"></script>
+<script src="{{$filename}}"></script>
 
 </html>
