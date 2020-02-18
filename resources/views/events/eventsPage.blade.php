@@ -338,7 +338,7 @@
             window.user_name = "{{$school_info->name}}";
             window.user_id = "{{$school_info->id}}";
             window.type = parseInt ("{{$isteacher}}") == 1
-            window.event_id = "{{$interview->id . $interview->teacher_id . $interview->school_id}}"
+            window.event_id = "{{$interview->id . $interview->teacher_id . $interview->school_id . $interview->interview_token}}"
         @endif
 
         $(document).ready(function(){

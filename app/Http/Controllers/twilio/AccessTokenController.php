@@ -20,7 +20,7 @@ class AccessTokenController extends Controller
 
     public function generateAccessToken(Request $request)
     {
-        if ($request->identity == null || $request->room_name) {
+        if ($request->identity == null || $request->room_name == null) {
             $this->Status->setError(["Identity is not set"]);
             return $this->Status->getError();
         }
