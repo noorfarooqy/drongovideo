@@ -331,7 +331,7 @@
             window.user_name = "{{$teacher_info->full_name}}"
             window.user_id = "{{$teacher_info->user_id}}"
             window.type = parseInt ("{{$isteacher}}") == 1
-            window.event_id = "{{$interview->id . $interview->teacher_id . $interview->school_id}}"
+            window.event_id = "{{$interview->id . $interview->teacher_id . $interview->school_id . $interview->interview_token}}"
         @elseif(isset($school_info) && !$isteacher)
             console.log('is schoool ',"{{$isteacher}}");
     
