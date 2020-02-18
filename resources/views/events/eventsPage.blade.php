@@ -331,12 +331,14 @@
             window.user_name = "{{$teacher_info->full_name}}"
             window.user_id = "{{$teacher_info->user_id}}"
             window.type = parseInt ("{{$isteacher}}") == 1
+            window.event_id = "{{$interview->id . $interview->teacher_id . $interview->school_id}}"
         @elseif(isset($school_info) && !$isteacher)
             console.log('is schoool ',"{{$isteacher}}");
     
             window.user_name = "{{$school_info->name}}";
             window.user_id = "{{$school_info->id}}";
             window.type = parseInt ("{{$isteacher}}") == 1
+            window.event_id = "{{$interview->id . $interview->teacher_id . $interview->school_id}}"
         @endif
 
         $(document).ready(function(){

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\twilio;
 use App\customClass\Error;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Twilio\Jwt\AccessToken;
 use Twilio\Jwt\Grants\VideoGrant;
 
@@ -21,7 +20,7 @@ class AccessTokenController extends Controller
 
     public function generateAccessToken(Request $request)
     {
-        if ($request->identity == null) {
+        if ($request->identity == null || $request->room_name) {
             $this->Status->setError(["Identity is not set"]);
             return $this->Status->getError();
         }
@@ -32,13 +31,14 @@ class AccessTokenController extends Controller
             3600,
             $request->identity
         );
+        $video_room = "100chinajobs" . $request->room_name;
+        $chat_room = $video_room . "_chat";
         $videoGrant = new VideoGrant();
-        $videoGrant->setRoom($request->room_name);
+        $videoGrant->setRoom($video_room);
 
         // Add grant to token
         $token->addGrant($videoGrant);
-        $video_room = "100chinajobs" . Str::random(12) . time();
-        $chat_room = $video_room . "_chat";
+
         if ($token !== "" && $token !== null) {
             $this->Status->setSuccess(["token" => $token->toJWT(), 'video_room' => $video_room, 'chat_room' => $chat_room]);
             return $this->Status->getSuccess();

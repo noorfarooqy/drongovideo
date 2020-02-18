@@ -395,7 +395,7 @@ var App = new Vue({
             }
             this.Server.setRequest({
                 identity: window.user_name+' '+window.user_id,
-                room_name: 'noor_room',
+                room_name: window.event_id,
             });
             this.Server.serverRequest('/api/event/gettoken',
                 this.eventData, this.showErrorModal)
