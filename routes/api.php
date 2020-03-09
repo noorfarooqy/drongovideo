@@ -17,6 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/event/gettoken', 'events\eventController@generateAccessToken');
+// Route::post('/event/gettoken', 'events\eventController@generateAccessToken');
+Route::post('/event/gettoken', 'twilio\AccessTokenController@generateAccessToken');
 
 Route::post('/event/upload/file', 'filemanager\mainFileManager@uploadFile');

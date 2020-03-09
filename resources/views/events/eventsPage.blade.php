@@ -184,7 +184,7 @@
                                             <img src="/images/microphone.svg" height="30px" alt="" class="remote_audio" v-else>
                                         </a>
                                     </li>
-                                    <li class="active nav-item" >
+                                    {{-- <li class="active nav-item" >
                                         <a data-toggle="tab" class="nav-link" :class="" href="#schoolInfo" 
                                             @click.prevent="remoteAuidoToggle()">
                                             <img src="/images/audio_off.svg" height="30px" alt="" 
@@ -192,7 +192,7 @@
                                             <img src="/images/audio_on.svg" height="30px" alt="" class="remote_audio" v-else>
                                             
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 </ul>
                         </div>
                     </div>
@@ -200,11 +200,11 @@
                         <ul class="nav nav-tabs">
                             <li class="active nav-item" >
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(0)" href="#schoolInfo" 
-                                @click.prevent="getActiveTab(0)">School</a>
+                                @click.prevent="getActiveTab(0)">Interviewer</a>
                             </li>
                             <li class=" nav-item">
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(1)" href="#employerInfo" 
-                                @click.prevent="getActiveTab(1)">Employee</a>
+                                @click.prevent="getActiveTab(1)">Interviewee</a>
                             </li>
                             <li class=" nav-item">
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(2)" href="#chatInfo" 
@@ -226,9 +226,26 @@
                                         {{$school_info->name}}
                                     </div>
                                     <div class="card-image">
-                                        <img src="{{$school_info['employer_img']}}" style="width: 100%;" alt="">
+                                        <div class="row">
+                                            <div class="col-md-4 col-lg-4 ml-1 mt-2">
+                                                <img src="{{$school_info['employer_img']}}" height="70" alt=""
+                                        style="border-radius: 5%;">
+                                            </div>
+                                            <div class="col-md-7 col-lg-7">
+                                                <div class="row ml-1">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                           
                                     </div>
-                                    <div class="card-body"></div>
+                                    <div class="card-body">
+
+                                        <div class="row ml-1 mr-1">
+                                            <b class="mr-3">School: </b> {{$school_info->name}}  
+                                        </div>
+                                    </div>
                                 </div>
                                 @endif
                             </div>
@@ -240,9 +257,35 @@
                                         {{$teacher_info->full_name}}
                                     </div>
                                     <div class="card-image">
-                                        <img src="{{$teacher_info->head_photo}}" style="width: 100%;"  alt="">
+                                        <div class="row">
+                                            <div class="col-md-4 col-lg-4">
+                                                <img src="{{$teacher_info->head_photo}}" class="mt-2 ml-2" height="100px"  alt="">
+                                            </div>
+                                            <div class="col-md-8 col-lg-8">
+                                                {{$teacher_info->intro}}
+                                                
+                                            </div>
+                                            
+                                        </div>
+                                        
                                     </div>
-                                    <div class="card-body"></div>
+                                    <hr>
+                                    <div class="card-body">
+                                        
+                                        <div class="row">
+                                            <b class="mr-3">Full name: </b> {{$teacher_info->full_name}}  
+                                        </div>
+                                        <div class="row">
+                                            @if ($teacher_info->employment_status)
+                                            <b class="mr-3">{{" Employment Status:  "}}  </b> {{" Employed "}} 
+                                            @else
+                                            <b class="mr-3">Employment status: </b> {{" Unemployed     "}}                                           
+                                            @endif
+                                        </div>
+                                        <div class="row">
+                                            <b class="mr-3">Nationality: </b> {{$teacher_info->nationality_id}}  
+                                        </div>
+                                    </div>
                                 </div>
                                 @endif
                             </div>

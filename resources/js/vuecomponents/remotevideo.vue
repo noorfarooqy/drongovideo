@@ -1,6 +1,5 @@
 <template>
-    
-    
+   
 </template>
 
 <script>
@@ -13,40 +12,23 @@ export default {
             // in_video_src: this.video_src,
         }
     },
-    created(){
-        
-    },
     mounted(){
-        // this.attachTracks();
-    },
-    updated() {
-        console.log('remote updated');
+        this.attachTracks();
     },
     methods: {
         attachTracks()
         {
-            var all_tracks = document.querySelector('.remote-video');
-            console.log('I have tracks ',all_tracks);
-            if(all_tracks)
-            {
-                console.log('will remvoe them ');
-                all_tracks.remove();
-            }
-                
             console.log('wil attach tracks')
             var container = document.querySelector('.all-tracks');
-            // this.tracks = [];
             this.video_src.forEach(track => {
-                // $('.video').append(track.attach())
                 
                 // this.tracks.push({html: track.attach(), kind:track.kind})
-                // track.addClass('local-video');
                 var htmlTrack = track.attach();
                 if(track.kind === "video")
                 {
                     $(htmlTrack).addClass('remote-video');
                     console.log('html track ',htmlTrack);
-                    htmlTrack.style.height = null;
+                    $('.remote-video').remove();
                     container.append(htmlTrack);
                 }
                 // container.addEventListener('DomRemoved',function(){
@@ -58,12 +40,21 @@ export default {
     props: ["video_src", "muted"],
     watch: {
         video_src: function(new_val, old_val){
-            
+            console.log('changed item ');
             this.attachTracks();
         },
         muted: function()
         {
-            // this.video_src[0].disabled()
+            this.video_src.forEach(source => {
+                if(source.kind == "audio")
+                {    
+                    if(this.muted)
+                        this.video_src[0].disable()
+                    else
+                        this.video_src[0].enable();
+                }
+            })
+            
         }
     }
 }

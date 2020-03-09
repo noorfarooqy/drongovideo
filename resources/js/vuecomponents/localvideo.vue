@@ -44,10 +44,16 @@ export default {
         },
         muted: function()
         {
-            if(this.muted)
-                this.video_src[0].disable()
-            else
-                this.video_src[0].enable();
+            console.log('will mute local audio ',this.muted);
+            this.video_src.forEach(source => {
+                if(source.kind == "audio")
+                {    
+                    if(this.muted)
+                        source.disable()
+                    else
+                        source.enable();
+                }
+            })
         }
     }
 }

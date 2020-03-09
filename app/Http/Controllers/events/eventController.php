@@ -25,7 +25,7 @@ class eventController extends Controller
         $this->TwilioManager = new AccessTokenController();
     }
 
-    public function generateAccessToken(Request $request)
+    public function ApigenerateAccessToken(Request $request)
     {
         $rules = [
             "identity" => "required|string|min:4|max:45",
@@ -75,7 +75,7 @@ class eventController extends Controller
             ['id', $interview_id],
         ])->get();
         $school_info = $interview[0]->schoolInfo;
-        if ($school_info === null || $school_info->count() <= 0 || $school_info->id !== (int)$school_id) {
+        if ($school_info === null || $school_info->count() <= 0 || $school_info->id !== (int) $school_id) {
             return view('errors.invalid_school');
         }
         $teacher_info = $interview[0]->teacherInfo;
@@ -89,7 +89,7 @@ class eventController extends Controller
         // return $interview;
         return $this->openEventPage($interview[0], $teacher_info, $school_info, false);
     }
-    public function openEventPage($interview = null, $teacher_info, $school_info, $isteacher=true)
+    public function openEventPage($interview = null, $teacher_info, $school_info, $isteacher = true)
     {
         return view('events.eventsPage', compact('interview', 'teacher_info', 'school_info', 'isteacher'));
     }

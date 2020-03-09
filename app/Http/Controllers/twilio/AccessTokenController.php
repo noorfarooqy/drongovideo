@@ -32,7 +32,7 @@ class AccessTokenController extends Controller
             $request->identity
         );
         $video_room = "100chinajobs" . $request->room_name;
-        $chat_room = $video_room . "_chat";
+        $chat_room = "_chat_$video_room";
         $videoGrant = new VideoGrant();
         $videoGrant->setRoom($video_room);
 
@@ -40,7 +40,7 @@ class AccessTokenController extends Controller
         $token->addGrant($videoGrant);
 
         if ($token !== "" && $token !== null) {
-            $this->Status->setSuccess(["token" => $token->toJWT(), 'video_room' => $video_room, 'chat_room' => $chat_room]);
+            $this->Status->setSuccess(["token" => $token->toJWT(), 'video_room' => $video_room, "chat_room" => $chat_room]);
             return $this->Status->getSuccess();
         }
         $this->Status->setError([$token]);

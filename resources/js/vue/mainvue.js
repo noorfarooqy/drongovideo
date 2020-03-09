@@ -145,7 +145,7 @@ var App = new Vue({
         this.Server = new ServerRequest(this.onProgressBar);
         this.Connection =new Connection(this.logSystem);
         this.getAccesstoken();
-        this.Connection.startChatConnection(this.room_names.chat_room,this.showMessage);
+        // this.Connection.startChatConnection(this.room_names.chat_room,this.showMessage);
 
 
     },
@@ -405,56 +405,65 @@ var App = new Vue({
             console.log('data ',data);
             this.room_names.video_room = data.video_room;
             this.room_names.chat_room = data.chat_room;
-            this.StartConnection(data.token, this.room_names.video_room);
+            this.StartConnection(data.token);
         },
-        StartConnection(token,room_name)
+        StartConnection(token)
         {
-            this.Connection.StartConnection(token, room_name, this.ConnectionCallBack, this.showMessage);
+            this.Connection.StartConnection(token, this.room_names.video_room, this.ConnectionCallBack, this.showMessage);
+            // this.Connection.openDataTrack(token, this.room_names.chat_room, this.DataRoomCallBack, this.showMessage);
             
         },
         ConnectionCallBack(room, remote=0)
         {
             if(!remote)
             {
-
                 this.Room = room;
                 console.log('Room ', this.Room);
                 console.log(this.Room.localParticipant.tracks);
                 var localtracks = this.Room.localParticipant.tracks;
+                
                 if(this.local_video.video_src.length >=2)
                 {
                     this.local_video.video_src =[];
                 }
                 localtracks.forEach(localtrack => {
-                    this.local_video.video_src.push(localtrack);
+                    if(localtrack.kind === "video" || localtrack.kind === "audio")
+                    {
+                        console.log('video trrack to attack ',localtrack)
+                        this.local_video.video_src.push(localtrack);
+                        this.default_video.visible = false;
+                        this.local_video.visible = true;
+                    }
+                    else
+                        console.log('non video track ',localtrack);
+                        
                 });
-                this.default_video.visible = false;
-                this.local_video.visible = true;
+                
             }
             else
             {
                 console.log('receving track ',room);
+                
                 var remotetrack =  room;
-                if(this.remote_video.video_src.length >=2)
+                if(this.remote_video.length >= 2)
                 {
+                    this.remote_video.visible = false;
                     this.remote_video.video_src =[];
                 }
-                // if(remotetrack.kind === "audio")
-                // {
-                    
-                //     // remotetrack.mediaStreamTrack.muted = true;
-                //     remotetrack.isEnabled = false;
-                //     console.log('audio remote track ',remotetrack);
-                // }
+                
                 this.remote_video.video_src.push(remotetrack);
-                // this.default_video.visible = false;
                 this.remote_video.visible = true;
                 console.log('pushed new remote track ',this.remote_video)
+            
+                
 
             }
-            this.Connection.sendMessage({m:'message', type: 'text'});
             // this.local_video.video_src = this.Room.localParticipant.v
             
+        },
+        DataRoomCallBack(room)
+        {
+            console.log('data room call back ',room);
         },
         remoteAuidoToggle()
         {
