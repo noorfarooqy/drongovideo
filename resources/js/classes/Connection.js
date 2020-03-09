@@ -99,7 +99,7 @@ export default class {
                             participant.on('trackSubscribed', track => {
                                 console.log('existing participant added track ',track);
                                 
-                                self.publishRemoteTrack(track);
+                                self.publishRemoteTrack(track, messageReceiveCallback);
                             })
                             var tracks = participant.tracks;
                             console.log('all tracks ',tracks);
@@ -109,7 +109,7 @@ export default class {
 
                             participant.on('trackSubscribed', track => {
                                 console.log('participant added track ',track);
-                                self.publishRemoteTrack(track);
+                                self.publishRemoteTrack(track, messageReceiveCallback);
                             })
                             var tracks = participant.tracks;
                             console.log('all tracks ',tracks);
@@ -158,7 +158,7 @@ export default class {
         }
 
     }
-    publishRemoteTrack(remoteTrackPublication)
+    publishRemoteTrack(remoteTrackPublication, messageReceiveCallback=null)
     {
         console.log('REMOTE track publicshed is ',remoteTrackPublication);
         if(remoteTrackPublication.kind === "video" || remoteTrackPublication.kind === "audio")
@@ -179,14 +179,22 @@ export default class {
         {
             remoteTrackPublication.on('message', message => {
                 console.log('received message ',message);
+                message = JSON.parse(message);
+                if(messageReceiveCallback)
+                    messageReceiveCallback(message);
             })
             this.dataTrackPublished.resolve()
         }
         
     }
     
-    sendData(data) {
-        this.dataTrackPublished.promise.then(() => self.datatrack.send(data));
+    sendMessage(data, sendCallback = null) {
+        var message = JSON.stringify(data);
+        this.dataTrackPublished.promise.then(() => self.datatrack.send(message));
+        if (sendCallback) {
+            data.origin = 1;
+            sendCallback(data);
+        }
     }
     isTwilioOnline() {
         return this.online === 1;
@@ -209,14 +217,14 @@ export default class {
         today = yyyy + '-' + mm + '-' + dd;
         return today;
     }
-    sendMessage(message, sendCallback = null) {
-        console.log('sending message ', message)
-        this.chatRoom.send(message);
-        if (sendCallback) {
-            message.origin = 1;
-            sendCallback(message);
-        }
-    }
+    // sendMessage(message, sendCallback = null) {
+    //     console.log('sending message ', message)
+    //     this.chatRoom.send(message);
+    //     if (sendCallback) {
+    //         message.origin = 1;
+    //         sendCallback(message);
+    //     }
+    // }
 
     startChatConnection(room_name, messageReceiveCallback) {
         this.chatRoom.session = this.chatConfig;

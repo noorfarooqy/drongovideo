@@ -461,10 +461,6 @@ var App = new Vue({
             // this.local_video.video_src = this.Room.localParticipant.v
             
         },
-        DataRoomCallBack(room)
-        {
-            console.log('data room call back ',room);
-        },
         remoteAuidoToggle()
         {
             var remote_video = document.querySelector('.remote-video');
