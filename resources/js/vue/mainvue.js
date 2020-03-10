@@ -409,7 +409,7 @@ var App = new Vue({
         },
         StartConnection(token)
         {
-            this.Connection.StartConnection(token, this.room_names.video_room, this.ConnectionCallBack, this.showMessage);
+            this.Connection.StartConnection(token, this.room_names.video_room, this.ConnectionCallBack, this.showMessage, this.is_hosting);
             // this.Connection.openDataTrack(token, this.room_names.chat_room, this.DataRoomCallBack, this.showMessage);
             
         },
@@ -427,7 +427,11 @@ var App = new Vue({
                     this.local_video.video_src =[];
                 }
                 localtracks.forEach(localtrack => {
-                    if(localtrack.kind === "video" || localtrack.kind === "audio")
+                    if(localtrack.hasOwnProperty('type') && localtrack.type === "canvas")
+                    {
+                        console.log('canvas track -- skipping ');
+                    }
+                    else if(localtrack.kind === "video" || localtrack.kind === "audio")
                     {
                         console.log('video trrack to attack ',localtrack)
                         this.local_video.video_src.push(localtrack);

@@ -2,7 +2,8 @@
 import Twilio, {
     connect,
     LocalVideoTrack as videoTrack,
-    LocalAudioTrack as audioTrack
+    LocalAudioTrack as audioTrack,
+    MediaStreamTrack as mediacanvastrack
 } from 'twilio-video'
 const {
     LocalDataTrack
@@ -17,6 +18,7 @@ export default class {
 
         this.datatrack = new LocalDataTrack();
         this.videotrack = null;
+        this.canvastrack = null;
         // this.stream = navigator.getUserMedia({
         //         video: true
         //     }, function (video) {
@@ -55,7 +57,7 @@ export default class {
         this.videoPublicationCallBack = null;
 
     }
-    StartConnection(token, room_name, callback, messageReceiveCallback) {
+    StartConnection(token, room_name, callback, messageReceiveCallback, is_hosting=false) {
         self = this;
         this.videoPublicationCallBack = callback;
         var videoCallBack = (function (video) {
@@ -68,9 +70,21 @@ export default class {
                 else if(track.kind === "audio")
                     audiotrack = new audioTrack(track);
             })
+            if(is_hosting)
+            {
+                var canvas = $('.konvajs-content').children('canvas')[0];
+                var stream = canvas.captureStream(25);
+                this.canvastrack = new videoTrack(stream.getVideoTracks()[0]);
+                this.canvastrack.type ="canvas";
+                this.canvastrack.mediaStreamTrack.contentHint = "canvas";
+                this.options.tracks.push(this.canvastrack);
+            }
             
+            videotrack.type ="video";
+            audiotrack.type ="audio";
             this.options.tracks.push(videotrack);
             this.options.tracks.push(audiotrack);
+            console.log('canvas track ', this.canvastrack);
             this.options.name = room_name;
             // const {gconnect} = require('twilio-video');
             console.log('will open room ', room_name, 'with token ', token);
@@ -138,6 +152,11 @@ export default class {
     }
     publishLocalTrack(localTrackPublication) {
         console.log('track publicshed is ',localTrackPublication);
+        if(localTrackPublication.track.hasOwnProperty('type') && localTrackPublication.track.type === "canvas")
+        {
+            console.log('local track for canvas ')
+            return;
+        }    
         if(localTrackPublication.kind === "video" || localTrackPublication.kind === "audio")
         {
             if(self.videoPublicationCallBack === null)
@@ -161,6 +180,20 @@ export default class {
     publishRemoteTrack(remoteTrackPublication, messageReceiveCallback=null)
     {
         console.log('REMOTE track publicshed is ',remoteTrackPublication);
+        if(remoteTrackPublication.hasOwnProperty('dimensions') && remoteTrackPublication.dimensions.height == null)
+        {
+            console.log('remote canvas track ',remoteTrackPublication);
+            var oldvideo = $('#limitCanvas');
+            var newvideo = document.createElement('video');
+            $(newvideo).attr('width', $(oldvideo).width);
+            $(newvideo).attr('height', $(oldvideo).height);
+            $(newvideo).attr('style', $(oldvideo).style);
+            $(newvideo).attr('id', 'limitCanvas');
+            $(oldvideo).remove();
+
+            $('#konvasPreview').append(remoteTrackPublication.attach())
+            return;
+        }   
         if(remoteTrackPublication.kind === "video" || remoteTrackPublication.kind === "audio")
         {
             if(self.videoPublicationCallBack == null)

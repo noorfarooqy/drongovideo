@@ -110,13 +110,15 @@
               console.log('new file sharing received ',this.file_sharing);
               if(this.file_sharing !== null)
                 this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
-                this.$emit('completed-sharing-file')
+                // this.$emit('completed-sharing-file')
+                // this.sendCanvasUpdate();
             },
             change_file_page: function () {
               console.log('change file page received ',this.file_sharing);
               if(this.file_sharing !== null)
                 this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
-                this.$emit('completed-changing-page')
+                // this.$emit('completed-changing-page')
+                this.sendCanvasUpdate()
             },
         },
         methods: {
@@ -211,11 +213,17 @@
             },
             sendCanvasUpdate()
             {
+                return;
                 if(!this.is_hosting)
+                {
+                    console.log('no --- sending canvas update ');
                     return;
+                }
+                
                 var stage = this.$refs.stage.getStage();
                 // console.log('stage ',stage)
                 var uri = stage.toDataURL();
+                console.log('sending canvas update now ');
                 this.$emit('send-canvas-update',uri)
             },
             openColorPicker() {

@@ -144,12 +144,13 @@
                     v-on:completed-changing-page="KonvasConfig.change_file_page = false"
                     v-on:completed-image-draw="resetImageDraw"
                     v-on:send-canvas-update="stageUrl"
-                    v-on:completed-sharing-file="stageUrl"
                     v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
-                <div v-else>
-                    <canvas  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
-                    :height="configKonva.height" style="border:thin solid green" ></canvas>
+                <div id="konvasPreview" v-else>
+                    <!-- <canvas  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
+                    :height="configKonva.height" style="border:thin solid green" ></canvas> -->
+                    <video  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
+                    :height="configKonva.height" style="border:thin solid green" ></video>
                 </div>
                 
             </div>
@@ -248,7 +249,7 @@
             },
             stageUrl(uri)
             {
-                // console.log('staging update canvas ',uri)
+                console.log('staging update canvas ',uri)
                 if(!this.is_hosting)
                     return;
                 // var stage = this.$refs.stage.getStage();
