@@ -21,3 +21,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/event/gettoken', 'twilio\AccessTokenController@generateAccessToken');
 
 Route::post('/event/upload/file', 'filemanager\mainFileManager@uploadFile');
+Route::post('/event/upload/video', 'filemanager\mainFileManager@uploadVideo');

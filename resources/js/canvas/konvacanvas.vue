@@ -106,7 +106,7 @@
             </div>
             <div class="card-body" ref="cardHW" style="height:100%; width:100%">
                 <div style="height: inherit;width: inherit;" v-if="videoSharing.visible">
-                    <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;" v-if="is_hosting"
+                    <video :src="videoSharing.video_src" class="videoSharing" style="height: inherit;width: inherit;" v-if="is_hosting"
                         controls @canplay="updatePaused($event,1)" @playing="updatePaused($event,2)" @pause="updatePaused($event,3)"></video>
                     <video :src="videoSharing.src" class="videoSharing" style="height: inherit;width: inherit;" v-else
                         controls ref="videoRemote" id="remoteVideo"></video>
@@ -144,6 +144,7 @@
                     v-on:completed-changing-page="KonvasConfig.change_file_page = false"
                     v-on:completed-image-draw="resetImageDraw"
                     v-on:send-canvas-update="stageUrl"
+                    v-on:completed-sharing-file="stageUrl"
                     v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
                 <div v-else>
@@ -165,7 +166,7 @@
     import fileviewer from "./fileviewer.vue";
     import Hasher from "object-hash"
     import textcomponent  from "../canvas/textcomponent.vue"
-
+    import ServerRequest from "../classes/ServerRequest";
     import VueKonvas from "../Konvas/components/Konvas.vue"; 
     export default {
         data() {
@@ -255,7 +256,7 @@
                 var hash = Hasher({'src':uri })
                 if(hash === this.previous_hash)
                 {
-                    console.log('previous hash detected ',hash, ' --- ',this.previous_hash);
+                    // console.log('previous hash detected ',hash, ' --- ',this.previous_hash);
                     return;
                 }
                 this.previous_hash = hash;
@@ -380,7 +381,7 @@
                     }
                     self.uploader.focus = true;
 
-                    self.renderFile(input, type);
+                    self.renderFile(input, type, file);
                     // this.uploader.src = 
                 })
                 uploader.click();
@@ -409,17 +410,14 @@
                     src: null
                 }
             },
-            setVideoUploaded() {
-
-                this.videoSharing.src = this.uploader.src;
+            setVideoUploaded(data) {
+                console.log('video src ',data);
+                this.videoSharing.src = data.video_src;
+                this.videoSharing.video_src = data.video_src;
                 this.videoSharing.visible = true;
                 this.videoSharing.current_time = 0;
-                this.uploader = {
-                    focus: false,
-                    src: null
-                }
                 this.Draw.visible = false;
-                console.log('new hash ',this.previous_hash);
+                console.log('new hash ',this.previous_hash, ' src ', this.videoSharing);
                 if(this.messageSender)
                 {
                         var sender = this.messageSender;
@@ -435,16 +433,25 @@
                 }
                 else
                     console.log('sender is not set ');
+                
+                this.uploader = {
+                    focus: false,
+                    src: null
+                }
 
             },
-            renderFile(input, type) {
+            renderFile(input, type, file=null) {
                 var reader = new FileReader();
                 var self = this;
                 reader.onload = function (e) {
                     console.log('reader ready ', e)
                     self.uploader.src = e.target.result;
                     if (self.isVideo(type)) {
-                        self.setVideoUploaded();
+                        var Server = new ServerRequest();
+                        var formdata = new FormData();
+                        formdata.append('video',input.files[0]);
+                        Server.setRequest(formdata);
+                        Server.serverRequest('/api/event/upload/video', self.setVideoUploaded, self.showError)
                     } else {
                         self.setImageUploaded();
                     }
@@ -614,6 +621,11 @@
             },
 
             //modals
+            showError(error)
+            {
+                this.Error.error_text = error;
+                this.Error.visible = true;
+            },
             disMissErrorModal() {
                 this.Error = new Error();
             },

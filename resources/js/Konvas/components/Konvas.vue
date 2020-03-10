@@ -1,5 +1,5 @@
 <template>
-    <div id="container" ref="containerCanvas">
+    <div id="container" ref="containerCanvas" style="background-color:white">
         <color-picker v-if="colorPickerOpen" v-bind="{visible: colorPickerOpen}"
             v-on:change-shape-color="changeShapeColor" v-on:close-color-picker="closeColorPicker()"></color-picker>
         <v-stage :config="stageSize" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown" ref="stage"
@@ -214,7 +214,7 @@
                 if(!this.is_hosting)
                     return;
                 var stage = this.$refs.stage.getStage();
-                console.log('stage ',stage)
+                // console.log('stage ',stage)
                 var uri = stage.toDataURL();
                 this.$emit('send-canvas-update',uri)
             },

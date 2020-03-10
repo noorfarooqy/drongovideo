@@ -8,7 +8,7 @@ use App\customClass\FileUploader;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Storage;
 class mainFileManager extends Controller
 {
     //
@@ -21,6 +21,28 @@ class mainFileManager extends Controller
         $this->FileUplaoder = new FileUploader();
         $this->custom_validator = new CustomRequestValidator();
 
+    }
+    public function uploadVideo(Request $request)
+    {
+        $rules = [
+            "video" => "required|file",
+        ];
+
+        $is_valid = Validator::make($request->all(), $rules, []);
+        $isNotValidRequest = $this->custom_validator->isNotValidRequest($is_valid);
+        if ($isNotValidRequest) {
+            return $isNotValidRequest;
+        }
+        $path = "uploads/videos";
+        $filename = $request->file('video')->getClientOriginalName();
+        $is_uploaded = Storage::disk('public')->putFileAs($path, $request->file('video'), $filename);
+        if ($is_uploaded) {
+            $this->Status->setSuccess(["video_src" => Storage::disk('public')->url($path . "/" . $filename)]);
+            return $this->Status->getSuccess();
+        } else {
+            $this->Status->setError(["failed to upload the video"]);
+            return $this->Status->getError();
+        }
     }
     public function uploadFile(Request $request)
     {
@@ -89,7 +111,7 @@ class mainFileManager extends Controller
         }
         natsort($pages);
         $pages = array_values($pages);
-        $this->Status->setSuccess(["files" => $pages, "command"=>$commandpdf]);
+        $this->Status->setSuccess(["files" => $pages, "command" => $commandpdf]);
         return $this->Status->getSuccess();
 
     }

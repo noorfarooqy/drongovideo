@@ -189,6 +189,7 @@ export default class {
     }
     
     sendMessage(data, sendCallback = null) {
+        console.log('sending message ',data);
         var message = JSON.stringify(data);
         this.dataTrackPublished.promise.then(() => self.datatrack.send(message));
         if (sendCallback) {
