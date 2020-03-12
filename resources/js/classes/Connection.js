@@ -55,10 +55,13 @@ export default class {
         this.chatRoom.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/';
         
         this.videoPublicationCallBack = null;
+        this.has_video = false;
+        this.is_hosting = false;
 
     }
     StartConnection(token, room_name, callback, messageReceiveCallback, is_hosting=false) {
         self = this;
+        this.is_hosting = is_hosting;
         this.videoPublicationCallBack = callback;
         var videoCallBack = (function (video) {
             console.log('video tracks --------------- ', video.getTracks());
@@ -70,6 +73,11 @@ export default class {
                 else if(track.kind === "audio")
                     audiotrack = new audioTrack(track);
             })
+
+            videotrack.type ="video";
+            audiotrack.type ="audio";
+            this.options.tracks.push(videotrack);
+            this.options.tracks.push(audiotrack);
             if(is_hosting)
             {
                 var canvas = $('.konvajs-content').children('canvas')[0];
@@ -78,14 +86,12 @@ export default class {
                 this.canvastrack.type ="canvas";
                 this.canvastrack.mediaStreamTrack.contentHint = "canvas";
                 this.options.tracks.push(this.canvastrack);
+                this.options.canvas_id = this.canvastrack.name;
             }
             
-            videotrack.type ="video";
-            audiotrack.type ="audio";
-            this.options.tracks.push(videotrack);
-            this.options.tracks.push(audiotrack);
             console.log('canvas track ', this.canvastrack);
             this.options.name = room_name;
+            
             // const {gconnect} = require('twilio-video');
             console.log('will open room ', room_name, 'with token ', token);
             // var self = self;
@@ -179,10 +185,12 @@ export default class {
     }
     publishRemoteTrack(remoteTrackPublication, messageReceiveCallback=null)
     {
-        console.log('REMOTE track publicshed is ',remoteTrackPublication);
-        if(remoteTrackPublication.hasOwnProperty('dimensions') && remoteTrackPublication.dimensions.height == null)
+        console.log('REMOTE track publicshed is ',remoteTrackPublication.dimensions);
+        // if(remoteTrackPublication.kind == "video" && remoteTrackPublication.hasOwnProperty('dimensions') && 
+        // remoteTrackPublication.dimensions.height > 360)
+        if(this.has_video && remoteTrackPublication.kind === "video" && !this.is_hosting)
         {
-            console.log('remote canvas track ',remoteTrackPublication);
+            console.log('remote canvas track ',remoteTrackPublication.dimensions);
             var oldvideo = $('#limitCanvas');
             var newvideo = document.createElement('video');
             $(newvideo).attr('width', $(oldvideo).width);
@@ -206,7 +214,11 @@ export default class {
                 })
             }
             else
+            {
                 self.videoPublicationCallBack(remoteTrackPublication,true);
+                if(remoteTrackPublication.kind === "video")
+                    this.has_video = true;
+            }    
         }
         else if(remoteTrackPublication.kind === "data")
         {
