@@ -201,7 +201,7 @@ var App = new Vue({
             }
             else if(message.type === 2 && this.is_hosting === false)
             {
-                this.updateCanvasBackground(message);
+                // this.updateCanvasBackground(message);
             }
             else if(message.type === 3 && this.is_hosting === false)
             {

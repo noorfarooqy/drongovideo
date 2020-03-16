@@ -6,7 +6,9 @@ use App\customClass\CustomRequestValidator;
 use App\customClass\Error;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\twilio\AccessTokenController;
+use App\models\countryModel;
 use App\models\interview\interviewInfoModel;
+use App\models\InviteeModel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -66,6 +68,8 @@ class eventController extends Controller
             return $is_time_for_interview;
         }
         // return $interview;
+        $countryModel = new countryModel();
+        $teacher_info->nationality_id = $countryModel->getCountryName($teacher_info->nationality_id);
         return $this->openEventPage($interview[0], $teacher_info, $school_info);
 
     }
@@ -87,6 +91,42 @@ class eventController extends Controller
             return $is_time_for_interview;
         }
         // return $interview;
+        $countryModel = new countryModel();
+        $teacher_info->nationality_id = $countryModel->getCountryName($teacher_info->nationality_id);
+        return $this->openEventPage($interview[0], $teacher_info, $school_info, false);
+    }
+    public function oponInterviewForInvitee($invitee_id, $interview_id)
+    {
+        $invitee = InviteeModel::where("id", $invitee_id)->get();
+        if($invitee === null || $invitee->count() <= 0)
+        {
+            return view("error.404");
+        }
+        else if($invitee[0]->interview_id !== (int) $interview_id )
+        {
+            // return $invitee;
+            return view("errors.403");
+        }
+        $interview = interviewInfoModel::where([
+            ['id', $interview_id],
+        ])->get();
+        $school_info = $interview[0]->schoolInfo;
+        if ($school_info === null || $school_info->count() <= 0 || $school_info->id !== (int) $invitee[0]->school_id) {
+            // return $invitee;
+            return view('errors.invalid_school');
+        }
+        // return $interview;
+        $teacher_info = $interview[0]->teacherInfo;
+        if ($teacher_info === null || $teacher_info->count() <= 0) {
+            return view('errors.invalid_teacher');
+        }
+        $is_time_for_interview = $this->isInterviewTime($interview);
+        if ($is_time_for_interview !== true) {
+            return $is_time_for_interview;
+        }
+        // return $interview;
+        $countryModel = new countryModel();
+        $teacher_info->nationality_id = $countryModel->getCountryName($teacher_info->nationality_id);
         return $this->openEventPage($interview[0], $teacher_info, $school_info, false);
     }
     public function openEventPage($interview = null, $teacher_info, $school_info, $isteacher = true)

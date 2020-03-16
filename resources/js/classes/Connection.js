@@ -69,7 +69,7 @@ export default class {
             var audiotrack , videotrack;
             mediatracks.forEach(track => {
                 if(track.kind === "video")
-                    videotrack = new videoTrack(track);
+                    videotrack = new videoTrack(track, {name: 'normal_video'});
                 else if(track.kind === "audio")
                     audiotrack = new audioTrack(track);
             })
@@ -82,7 +82,7 @@ export default class {
             {
                 var canvas = $('.konvajs-content').children('canvas')[0];
                 var stream = canvas.captureStream(25);
-                this.canvastrack = new videoTrack(stream.getVideoTracks()[0]);
+                this.canvastrack = new videoTrack(stream.getVideoTracks()[0], {name: 'canvas-video'});
                 this.canvastrack.type ="canvas";
                 this.canvastrack.mediaStreamTrack.contentHint = "canvas";
                 this.options.tracks.push(this.canvastrack);
@@ -188,18 +188,31 @@ export default class {
         console.log('REMOTE track publicshed is ',remoteTrackPublication.dimensions);
         // if(remoteTrackPublication.kind == "video" && remoteTrackPublication.hasOwnProperty('dimensions') && 
         // remoteTrackPublication.dimensions.height > 360)
-        if(this.has_video && remoteTrackPublication.kind === "video" && !this.is_hosting)
+        if( remoteTrackPublication.name === "canvas-video" )
         {
-            console.log('remote canvas track ',remoteTrackPublication.dimensions);
-            var oldvideo = $('#limitCanvas');
-            var newvideo = document.createElement('video');
-            $(newvideo).attr('width', $(oldvideo).width);
-            $(newvideo).attr('height', $(oldvideo).height);
-            $(newvideo).attr('style', $(oldvideo).style);
-            $(newvideo).attr('id', 'limitCanvas');
-            $(oldvideo).remove();
+            // console.log('remote canvas track ',remoteTrackPublication.dimensions);
+            var oldvideo = document.getElementById('limitCanvas');
+            var context = oldvideo.getContext('2d')
+            // var newvideo = document.createElement('video');
+            // $(newvideo).attr('width', $(oldvideo).width);
+            // $(newvideo).attr('height', $(oldvideo).height);
+            // $(newvideo).attr('style', $(oldvideo).style);
+            // $(newvideo).attr('id', 'limitCanvas');
+            // $(oldvideo).remove();
+            var newvideo = remoteTrackPublication.attach();
+            // $(newvideo).css('background-color', "rgba(255,255,255,1")
+            newvideo.style.backgroundColor = "lightblue"
+            console.log('new video ',newvideo, ' context ',oldvideo);
+            
+            function playVideo()
+            {
+                // console.log(' width ',oldvideo.widht, ' height ', oldvideo.height);
+                context.drawImage(newvideo,0,0, oldvideo.width, oldvideo.height);
+                requestAnimationFrame(playVideo);
+            }
+            playVideo();
+            // $('#konvasPreview').append(remoteTrackPublication.attach())
 
-            $('#konvasPreview').append(remoteTrackPublication.attach())
             return;
         }   
         if(remoteTrackPublication.kind === "video" || remoteTrackPublication.kind === "audio")

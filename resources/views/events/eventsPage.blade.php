@@ -174,15 +174,16 @@
                             
                             
                         </div>
+                        <a data-toggle="tab" style="position: relative;top: -20%;left: 85%;" href="#schoolInfo" 
+                        @click.prevent="localAuidoToggle()">
+                            <img src="/images/microphone_muted.svg" height="30px" alt="" 
+                                v-if="local_video.muted">
+                            <img src="/images/microphone.svg" height="30px" alt="" class="remote_audio" v-else>
+                        </a>
                         <div class="">
                                 <ul class="nav nav-tabs">
                                     <li class="active nav-item" >
-                                        <a data-toggle="tab" class="nav-link" :class="" href="#schoolInfo" 
-                                        @click.prevent="localAuidoToggle()">
-                                            <img src="/images/microphone_muted.svg" height="30px" alt="" 
-                                                v-if="local_video.muted">
-                                            <img src="/images/microphone.svg" height="30px" alt="" class="remote_audio" v-else>
-                                        </a>
+                                        
                                     </li>
                                     {{-- <li class="active nav-item" >
                                         <a data-toggle="tab" class="nav-link" :class="" href="#schoolInfo" 
@@ -200,11 +201,11 @@
                         <ul class="nav nav-tabs">
                             <li class="active nav-item" >
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(0)" href="#schoolInfo" 
-                                @click.prevent="getActiveTab(0)">Interviewer</a>
+                                @click.prevent="getActiveTab(0)">Employer</a>
                             </li>
                             <li class=" nav-item">
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(1)" href="#employerInfo" 
-                                @click.prevent="getActiveTab(1)">Interviewee</a>
+                                @click.prevent="getActiveTab(1)">Employee</a>
                             </li>
                             <li class=" nav-item">
                                 <a data-toggle="tab" class="nav-link" :class="getActiveClass(2)" href="#chatInfo" 

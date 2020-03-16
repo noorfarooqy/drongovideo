@@ -5,10 +5,10 @@
         <v-stage :config="stageSize" @mousedown="handleStageMouseDown" @touchstart="handleStageMouseDown" ref="stage"
          @mousemove="sendCanvasUpdate">
             <v-layer ref="layer" v-on:draw-layer="drawLayer">
+                <vuerect v-bind="{rect_list: rect_list, width: stageSize.width, height: stageSize.height, bg_color: stageSize.bg_color}"></vuerect>
                 <vuetext v-bind="{text_list: text_list}"></vuetext>
-                <vuerect v-bind="{rect_list: rect_list}"></vuerect>
                 <vuecircle v-bind="{circle_list: circle_list}"></vuecircle>
-                <vueimage v-bind="{image_list: image_list}"></vueimage>
+                <vueimage v-bind="{image_list: image_list, width: stageSize.width}"></vueimage>
                 <v-transformer ref="transformer" v-on:hide-transformer="hideTransformer"
                     v-on:show-transformer="showTransformer" v-on:force-transformerUpdate="forceUpdateTransformer" />
             </v-layer>
@@ -35,7 +35,8 @@
                 stageSize: {
                     width: width,
                     height: height,
-                    container: "container"
+                    container: "container",
+                    bg_color: this.bg_color
                 },
                 selectedShapeName: null,
                 colorPickerOpen: false,
@@ -50,7 +51,7 @@
             colorPicker
         },
         props: [
-            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline","change_file_page",
+            "color_picker", "draw_text", "text_bold", "text_italic", "text_underline","change_file_page", "bg_color",
             "draw_rect", "draw_circle", "draw_image", "image_status", "draw_eraser", "file_sharing","is_hosting"
         ],
         created() {},
@@ -109,17 +110,20 @@
             file_sharing: function () {
               console.log('new file sharing received ',this.file_sharing);
               if(this.file_sharing !== null)
-                this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
+                this.createImage(this.file_sharing.image.src, {width: this.stageSize.width, height: this.stageSize.height},2)
                 // this.$emit('completed-sharing-file')
                 // this.sendCanvasUpdate();
             },
             change_file_page: function () {
               console.log('change file page received ',this.file_sharing);
               if(this.file_sharing !== null)
-                this.createImage(this.file_sharing.image.src, {width: width, height: this.file_sharing.height},2)
-                // this.$emit('completed-changing-page')
+                this.createImage(this.file_sharing.image.src, {width: this.stageSize.width, height: this.stageSize.height},2)
+                this.$emit('completed-changing-page')
                 this.sendCanvasUpdate()
             },
+            bg_color() {
+                this.stageSize.bg_color = this.bg_color;
+            }
         },
         methods: {
             createText() {

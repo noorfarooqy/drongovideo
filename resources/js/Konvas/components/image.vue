@@ -12,6 +12,8 @@ export default {
     };
   },
   methods: {},
-  props: ["image_list"]
+  props: ["image_list"],
+  watch: {
+  }
 };
 </script>

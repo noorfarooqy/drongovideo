@@ -135,7 +135,7 @@
 
                 </v-stage> -->
                 <!-- <textcomponent v-bind="{out_configKonva: configKonva}"></textcomponent> -->
-                <vue-konvas v-bind="KonvasConfig" v-show="Draw.visible"  :style="getBackgroundColor()"
+                <vue-konvas v-bind="KonvasConfig" v-show="Draw.visible"  
                     v-on:close-color-picker="KonvasConfig.color_picker = false"
                     v-on:completed-text-draw="KonvasConfig.draw_text = false"
                     v-on:completed-rect-draw="KonvasConfig.draw_rect = false"
@@ -147,10 +147,10 @@
                     v-on:reset-text-style="resetTextStyle"> </vue-konvas>
                 </div>
                 <div id="konvasPreview" v-else>
-                    <!-- <canvas  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
-                    :height="configKonva.height" style="border:thin solid green" ></canvas> -->
-                    <video  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
-                    :height="configKonva.height" style="border:thin solid green" ></video>
+                    <canvas  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
+                    :height="configKonva.height" style="border:thin solid green;" ></canvas>
+                    <!-- <video  id="limitCanvas" :width="configKonva.width-40" :key="'k'+1"
+                    :height="configKonva.height" style="border:thin solid green" ></video> -->
                 </div>
                 
             </div>
@@ -223,13 +223,13 @@
                     text_underline: false,
                     draw_eraser: false,
                     file_sharing: null,
+                    bg_color: this.bg_color,
                 }
 
 
             };
         },
         created() {
-            
         },
         mounted() {
             this.configKonva.width = this.getClientWidth();
@@ -238,6 +238,7 @@
             var remoteVideo = this.$refs.remoteVideo;
             console.log('video ',remoteVideo);
             this.KonvasConfig.file_sharing = this.file_sharing;
+            this.KonvasConfig.bg_color = this.bg_color;
         },
         methods: {
 
@@ -609,8 +610,8 @@
                     
                     // this.KonvasConfig.draw_image.src = image;
                     this.all.file_sharing = {};
-                    this.all.file_sharing.width = this.getClientWidth();
-                    this.all.file_sharing.height = this.getClientHeight();
+                    // this.all.file_sharing.width = this.getClientWidth();
+                    // this.all.file_sharing.height = this.getClientHeight();
                     this.all.file_sharing.src = image;
                     this.all.file_sharing.url = image.src,
                     self.isLoading = false;  
@@ -720,8 +721,8 @@
 
                 this.shared_file =this.file_sharing;
                 this.all.file_sharing = {};
-                this.all.file_sharing.width = this.getClientWidth();
-                this.all.file_sharing.height = this.getClientHeight();
+                this.all.file_sharing.width = this.stageSize.width;
+                this.all.file_sharing.height = this.stageSize.height;
                 this.all.file_sharing.src = this.file_sharing.image;
                 this.all.file_sharing.url = this.file_sharing.image.src;
                 if (this.all.file_sharing.visible) {
@@ -731,6 +732,9 @@
             },
             is_hosting: function(){
                 this.KonvasConfig.is_hosting = true;
+            },
+            bg_color() {
+                this.KonvasConfig.bg_color = this.bg_color;
             }
         }
 
